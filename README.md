@@ -32,8 +32,8 @@ A unified command-line interface with 7 intuitive verbs for humans and AI agents
 Requires [Nix](https://nixos.org/download.html) with flakes enabled.
 
 ```bash
-git clone https://github.com/vitali87/utility.git
-cd utility
+git clone https://github.com/vitali87/u7.git
+cd u7
 nix develop
 ```
 
