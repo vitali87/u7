@@ -277,6 +277,10 @@ _u7_show() {
         tags) git tag -l --sort=-v:refname ;;
         log)
           local limit="${2:-10}"
+          if ! [[ "$limit" =~ ^[0-9]+$ ]]; then
+            echo "Error: limit must be a positive integer, got '$limit'"
+            return 1
+          fi
           git log --oneline -"$limit"
           ;;
         status) git status --short ;;

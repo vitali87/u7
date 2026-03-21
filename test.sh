@@ -741,6 +741,17 @@ else
     echo -e "${RED}✗${NC} sh git remotes works"
     ((FAILED++))
 fi
+
+# Test 85: Show git tags
+git tag v0.0.1
+result=$(u7 sh git tags 2>&1)
+assert_contains "sh git tags works" "v0.0.1" "$result"
+
+# Test 86: Show git diff
+echo "change" > diff_test.txt
+git add diff_test.txt
+result=$(u7 sh git diff 2>&1)
+assert_contains "sh git diff works" "change" "$result"
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
