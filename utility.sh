@@ -1004,9 +1004,14 @@ _u7_set() {
             return 1
         fi
         if [[ "$_U7_DRY_RUN" == "1" ]]; then
-          echo "[dry-run] find ${4:-.} -type f -exec sed -i'' 's/\\t/  /g' {} \\;"
+          echo "[dry-run] Replace tabs with spaces in text files under '${4:-.}'"
         else
-          find "${4:-.}" -type f -exec sed -i'' 's/\t/  /g' {} \;
+          grep -rl $'\t' "${4:-.}" 2>/dev/null | while IFS= read -r file; do
+            # grep -qI '' exits 0 for text files, 1 for binary files
+            if grep -qI '' "$file" 2>/dev/null; then
+              sed -i'' 's/\t/  /g' "$file"
+            fi
+          done
         fi
       else
         echo "Usage: u7 st tabs to spaces in <directory>"

@@ -601,6 +601,70 @@ else
     ((FAILED++))
 fi
 
+# === Error case tests ===
+echo ""
+echo "Error case tests"
+echo "==================="
+
+# Test 61: Unknown verb
+assert_contains "Unknown verb shows error" "Unknown verb" "$(u7 bogus 2>&1)"
+
+# Test 62: Unknown entity for each verb
+for verb in sh mk dr cv mv st rn; do
+    result=$(u7 $verb bogus_entity 2>&1)
+    if [[ "$result" == *"Unknown"* || "$result" == *"Usage:"* ]]; then
+        echo -e "${GREEN}✓${NC} u7 $verb rejects unknown entity"
+        ((PASSED++))
+    else
+        echo -e "${RED}✗${NC} u7 $verb rejects unknown entity"
+        echo "  Expected to contain 'Unknown' or 'Usage:'"
+        echo "  Got: $result"
+        ((FAILED++))
+    fi
+done
+
+# Test 63: Missing file for sh csv
+assert_contains "sh csv reports missing file" "File not found" "$(u7 sh csv nonexistent.csv 2>&1)"
+
+# Test 64: Missing file for sh json
+assert_contains "sh json reports missing file" "File not found" "$(u7 sh json nonexistent.json 2>&1)"
+
+# Test 65: Missing operator for sh line
+assert_contains "sh line requires 'from' operator" "Usage:" "$(u7 sh line 1 2>&1)"
+
+# Test 66: Missing operator for mv file
+assert_contains "mv file requires 'to' operator" "Usage:" "$(u7 mv file source.txt 2>&1)"
+
+# Test 67: Missing file for rn script
+assert_contains "rn script reports missing file" "not found" "$(u7 rn script nonexistent.sh 2>&1)"
+
+# Test 68: Missing archive for cv archive
+assert_contains "cv archive reports missing file" "not found" "$(u7 cv archive nonexistent.tar.gz to files 2>&1)"
+
+# Test 69: Missing args for dr file
+assert_contains "dr file requires path argument" "Usage:" "$(u7 dr file 2>&1)"
+
+# Test 70: Invalid time unit for rn job
+assert_contains "rn job rejects invalid time unit" "Ns, Nm, or Nh" "$(u7 rn job "echo test" in 5x 2>&1)"
+
+# Test 71: Unsupported archive format
+echo "data" > fake.xyz
+assert_contains "mk archive rejects unsupported format" "Unsupported" "$(u7 mk archive fake.xyz from fake.xyz 2>&1)"
+
+# Test 72: Help flags work for all verbs
+for verb in sh mk dr cv mv st rn; do
+    result=$(u7 $verb --help 2>&1)
+    if [[ "$result" == *"Usage:"* || "$result" == *"Entities:"* ]]; then
+        echo -e "${GREEN}✓${NC} u7 $verb --help works"
+        ((PASSED++))
+    else
+        echo -e "${RED}✗${NC} u7 $verb --help works"
+        echo "  Expected to contain 'Usage:' or 'Entities:'"
+        echo "  Got: $result"
+        ((FAILED++))
+    fi
+done
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
