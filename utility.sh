@@ -831,6 +831,10 @@ _u7_convert() {
       local to_fmt="$3"
       local output="${input%.*}.$to_fmt"
       if [[ "$4" == "yield" ]]; then
+        if [[ -z "$5" ]]; then
+          echo "Usage: u7 cv csv <input> to json [yield <output>]"
+          return 1
+        fi
         output="$5"
       fi
 
@@ -845,7 +849,9 @@ _u7_convert() {
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
             echo "[dry-run] qsv tojson $input > $output"
           else
-            qsv tojson "$input" > "$output"
+            local tmpfile
+            tmpfile=$(mktemp "${output}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
+            qsv tojson "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
           fi
           ;;
         *) echo "Unsupported conversion: csv to $to_fmt" ; return 1 ;;

@@ -689,7 +689,7 @@ assert_contains "sh processes running match filters output" "bash" "$result"
 
 # Test 76: Convert CSV to JSON
 echo -e "name,age\nAlice,30\nBob,25" > convert.csv
-u7 cv csv convert.csv to json yield convert.json >/dev/null 2>&1
+u7 cv csv convert.csv to json yield convert.json >/dev/null
 if [[ -f "convert.json" ]]; then
     result=$(cat convert.json)
     assert_contains "cv csv to json works" "Alice" "$result"
