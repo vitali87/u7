@@ -54,7 +54,7 @@ u7 sh ssl of google.com
 # Files
 u7 sh files match "TODO" in ./src
 u7 sh files by modified
-u7 sh csv first 10 from data.csv
+u7 sh csv data.csv limit 10
 
 # System
 u7 sh cpu
