@@ -1004,9 +1004,9 @@ _u7_set() {
             return 1
         fi
         if [[ "$_U7_DRY_RUN" == "1" ]]; then
-          echo "[dry-run] grep -rlP '\\t' ${4:-.} | xargs sed -i'' 's/\\t/  /g'"
+          echo "[dry-run] Replace tabs with spaces in text files under '${4:-.}'"
         else
-          grep -rlP '\t' "${4:-.}" 2>/dev/null | while IFS= read -r file; do
+          grep -rl $'\t' "${4:-.}" 2>/dev/null | while IFS= read -r file; do
             if file -b --mime-type "$file" | grep -q '^text/'; then
               sed -i'' 's/\t/  /g' "$file"
             fi
