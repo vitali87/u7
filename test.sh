@@ -230,7 +230,7 @@ assert_contains "Show file diff" "version1" "$result"
 mkdir replace_dir
 echo "foo.bar" > replace_dir/file1.txt
 echo "foo.bar" > replace_dir/file2.txt
-u7 st text "foo.bar" to "replaced" in replace_dir >/dev/null 2>&1
+echo "y" | u7 st text "foo.bar" to "replaced" in replace_dir >/dev/null 2>&1
 result1=$(cat replace_dir/file1.txt)
 result2=$(cat replace_dir/file2.txt)
 if [[ "$result1" == "replaced" && "$result2" == "replaced" ]]; then

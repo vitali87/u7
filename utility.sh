@@ -852,7 +852,7 @@ Entities:
   archive <archive> to files [yield <dest>]  Extract archive
   files <files...> to archive yield <output>   Create archive
   image <input> to <format> [yield <output>]   Convert image (png/jpg/webp/gif/etc)
-  video to <format> from <input>         Convert video
+  video <input> to <format> [yield <output>]   Convert video
   json <input> to yaml [yield <output>]  Convert JSON to YAML
   case upper to lower on <files...>      Rename to lowercase
   case lower to upper on <files...>      Rename to uppercase
@@ -953,7 +953,7 @@ _u7_set() {
           fi
 
           echo "Will replace '$old' with '$new' in ${#matched_files[@]} file(s) under $target. Continue? (y/n)"
-          read -r confirm < /dev/tty
+          read -r confirm
           if [[ "${confirm,,}" != "y" ]]; then
             echo "Aborted."
             return 0
