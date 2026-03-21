@@ -6,7 +6,7 @@ If you want to contribute to this project, please create a PR.
 ## Third-party integrations
 Integration of third-party libraries are welcomed. The only requirement is to check if the license of the third-party integration allows free use and integration with other software. 
 
-Please update the install.sh file accordingly if the library is not listed there.
+Please update the `flake.nix` file accordingly if the library is not listed there.
 
 ## Anything in mind?
 Please create an **Issue** if you would like to discuss potential features or directions.

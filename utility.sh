@@ -1004,9 +1004,13 @@ _u7_set() {
             return 1
         fi
         if [[ "$_U7_DRY_RUN" == "1" ]]; then
-          echo "[dry-run] find ${4:-.} -type f -exec sed -i'' 's/\\t/  /g' {} \\;"
+          echo "[dry-run] grep -rlP '\\t' ${4:-.} | xargs sed -i'' 's/\\t/  /g'"
         else
-          find "${4:-.}" -type f -exec sed -i'' 's/\t/  /g' {} \;
+          grep -rlP '\t' "${4:-.}" 2>/dev/null | while IFS= read -r file; do
+            if file -b --mime-type "$file" | grep -q '^text/'; then
+              sed -i'' 's/\t/  /g' "$file"
+            fi
+          done
         fi
       else
         echo "Usage: u7 st tabs to spaces in <directory>"

@@ -601,6 +601,136 @@ else
     ((FAILED++))
 fi
 
+# === Error case tests ===
+echo ""
+echo "Error case tests"
+echo "==================="
+
+# Test 61: Unknown verb
+result=$(u7 bogus 2>&1)
+if [[ "$result" == *"Unknown verb"* ]]; then
+    echo -e "${GREEN}✓${NC} Unknown verb shows error"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} Unknown verb shows error"
+    ((FAILED++))
+fi
+
+# Test 62: Unknown entity for each verb
+for verb in sh mk dr cv mv st rn; do
+    result=$(u7 $verb bogus_entity 2>&1)
+    if [[ "$result" == *"Unknown"* || "$result" == *"Usage:"* ]]; then
+        echo -e "${GREEN}✓${NC} u7 $verb rejects unknown entity"
+        ((PASSED++))
+    else
+        echo -e "${RED}✗${NC} u7 $verb rejects unknown entity"
+        ((FAILED++))
+    fi
+done
+
+# Test 63: Missing file for sh csv
+result=$(u7 sh csv nonexistent.csv 2>&1)
+if [[ "$result" == *"File not found"* ]]; then
+    echo -e "${GREEN}✓${NC} sh csv reports missing file"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} sh csv reports missing file"
+    ((FAILED++))
+fi
+
+# Test 64: Missing file for sh json
+result=$(u7 sh json nonexistent.json 2>&1)
+if [[ "$result" == *"File not found"* ]]; then
+    echo -e "${GREEN}✓${NC} sh json reports missing file"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} sh json reports missing file"
+    ((FAILED++))
+fi
+
+# Test 65: Missing operator for sh line
+result=$(u7 sh line 1 2>&1)
+if [[ "$result" == *"Usage:"* ]]; then
+    echo -e "${GREEN}✓${NC} sh line requires 'from' operator"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} sh line requires 'from' operator"
+    ((FAILED++))
+fi
+
+# Test 66: Missing operator for mv file
+result=$(u7 mv file source.txt 2>&1)
+if [[ "$result" == *"Usage:"* ]]; then
+    echo -e "${GREEN}✓${NC} mv file requires 'to' operator"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mv file requires 'to' operator"
+    ((FAILED++))
+fi
+
+# Test 67: Missing file for rn script
+result=$(u7 rn script nonexistent.sh 2>&1)
+if [[ "$result" == *"not found"* ]]; then
+    echo -e "${GREEN}✓${NC} rn script reports missing file"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} rn script reports missing file"
+    ((FAILED++))
+fi
+
+# Test 68: Missing archive for cv archive
+result=$(u7 cv archive nonexistent.tar.gz to files 2>&1)
+if [[ "$result" == *"not found"* ]]; then
+    echo -e "${GREEN}✓${NC} cv archive reports missing file"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} cv archive reports missing file"
+    ((FAILED++))
+fi
+
+# Test 69: Missing args for dr file
+result=$(u7 dr file 2>&1)
+if [[ "$result" == *"Usage:"* ]]; then
+    echo -e "${GREEN}✓${NC} dr file requires path argument"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} dr file requires path argument"
+    ((FAILED++))
+fi
+
+# Test 70: Invalid time unit for rn job
+result=$(u7 rn job "echo test" in 5x 2>&1)
+if [[ "$result" == *"Use:"* || "$result" == *"Ns, Nm, or Nh"* ]]; then
+    echo -e "${GREEN}✓${NC} rn job rejects invalid time unit"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} rn job rejects invalid time unit"
+    ((FAILED++))
+fi
+
+# Test 71: Unsupported archive format
+echo "data" > fake.xyz
+result=$(u7 mk archive fake.xyz from fake.xyz 2>&1)
+if [[ "$result" == *"Unsupported"* ]]; then
+    echo -e "${GREEN}✓${NC} mk archive rejects unsupported format"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk archive rejects unsupported format"
+    ((FAILED++))
+fi
+
+# Test 72: Help flags work for all verbs
+for verb in sh mk dr cv mv st rn; do
+    result=$(u7 $verb --help 2>&1)
+    if [[ "$result" == *"Usage:"* || "$result" == *"Entities:"* ]]; then
+        echo -e "${GREEN}✓${NC} u7 $verb --help works"
+        ((PASSED++))
+    else
+        echo -e "${RED}✗${NC} u7 $verb --help works"
+        ((FAILED++))
+    fi
+done
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
