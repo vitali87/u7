@@ -538,9 +538,11 @@ _u7_drop() {
         return 1
       fi
       if [[ "$_U7_DRY_RUN" == "1" ]]; then
-        echo "[dry-run] cut -d',' -f$num --complement $file > ${file}.tmp && mv ${file}.tmp $file"
+        echo "[dry-run] cut -d',' -f$num --complement $file"
       else
-        cut -d',' -f"$num" --complement "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+        local tmpfile
+        tmpfile=$(mktemp "${file}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
+        cut -d',' -f"$num" --complement "$file" > "$tmpfile" && mv "$tmpfile" "$file" || { rm -f "$tmpfile"; return 1; }
       fi
       ;;
 
@@ -555,9 +557,11 @@ _u7_drop() {
         return 1
       fi
       if [[ "$_U7_DRY_RUN" == "1" ]]; then
-        echo "[dry-run] awk '!x[\$0]++' $file > ${file}.tmp && mv ${file}.tmp $file"
+        echo "[dry-run] awk '!x[\$0]++' $file"
       else
-        awk '!x[$0]++' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+        local tmpfile
+        tmpfile=$(mktemp "${file}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
+        awk '!x[$0]++' "$file" > "$tmpfile" && mv "$tmpfile" "$file" || { rm -f "$tmpfile"; return 1; }
       fi
       ;;
 
@@ -940,7 +944,22 @@ _u7_set() {
       else
         if [[ -d "$target" ]]; then
           # Use grep with -F for literal string matching, then sed for replacement
-          grep -rlF "$old" "$target" 2>/dev/null | while IFS= read -r file; do
+          local -a matched_files=()
+          mapfile -t matched_files < <(grep -rlF "$old" "$target" 2>/dev/null)
+
+          if [[ ${#matched_files[@]} -eq 0 ]]; then
+            echo "No files containing '$old' found in $target"
+            return 0
+          fi
+
+          echo "Will replace '$old' with '$new' in ${#matched_files[@]} file(s) under $target. Continue? (y/n)"
+          read -r confirm < /dev/tty
+          if [[ "${confirm,,}" != "y" ]]; then
+            echo "Aborted."
+            return 0
+          fi
+
+          for file in "${matched_files[@]}"; do
             sed -i'' "s/$old_escaped/$new_escaped/g" "$file"
           done
         else
