@@ -718,6 +718,41 @@ assert_contains "sh env match filters output" "PATH" "$result"
 result=$(u7 sh env match 2>&1)
 assert_contains "sh env match requires pattern" "Usage:" "$result"
 
+# Test 82: Show git log
+cd "$TEST_DIR"
+git init -q
+git config user.email "test@test.com"
+git config user.name "Test"
+git commit --allow-empty -m "test commit" -q
+result=$(u7 sh git log 2>&1)
+assert_contains "sh git log works" "test commit" "$result"
+
+# Test 83: Show git status
+touch untracked_file.txt
+result=$(u7 sh git status 2>&1)
+assert_contains "sh git status works" "untracked_file.txt" "$result"
+
+# Test 84: Show git remotes (may be empty in test repo)
+result=$(u7 sh git remotes 2>&1)
+if [[ $? -eq 0 ]]; then
+    echo -e "${GREEN}✓${NC} sh git remotes works"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} sh git remotes works"
+    ((FAILED++))
+fi
+
+# Test 85: Show git tags
+git tag v0.0.1
+result=$(u7 sh git tags 2>&1)
+assert_contains "sh git tags works" "v0.0.1" "$result"
+
+# Test 86: Show git diff
+echo "initial" > diff_test.txt
+git add diff_test.txt && git commit -q -m "add diff_test"
+echo "changed" > diff_test.txt
+result=$(u7 sh git diff 2>&1)
+assert_contains "sh git diff works" "changed" "$result"
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"

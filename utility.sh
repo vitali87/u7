@@ -274,7 +274,19 @@ _u7_show() {
             echo -e "$(git show --pretty=format:"%ci %cr" "$k" -- | head -n 1)\t$k"
           done | sort -r
           ;;
-        *) echo "Usage: u7 sh git <authors|branches>" ;;
+        tags) git tag -l --sort=-v:refname ;;
+        log)
+          local limit="${2:-10}"
+          if ! [[ "$limit" =~ ^[0-9]+$ ]]; then
+            echo "Error: limit must be a positive integer, got '$limit'"
+            return 1
+          fi
+          git log --oneline -"$limit"
+          ;;
+        status) git status --short ;;
+        diff) git diff ;;
+        remotes) git remote -v ;;
+        *) echo "Usage: u7 sh git <authors|branches|tags|log [N]|status|diff|remotes>" ;;
       esac
       ;;
 
@@ -327,7 +339,7 @@ Entities:
   port <number>
   usage <disk|directories> [path|depth]
   network
-  git <authors|branches>
+  git <authors|branches|tags|log [N]|status|diff|remotes>
   env [match <pattern>]
   definition of <word>
   functions
