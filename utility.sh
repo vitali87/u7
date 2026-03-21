@@ -181,13 +181,21 @@ _u7_show() {
           grep -RnisI "$pattern" "$path"
           ;;
         by)
+          local limit="20"
+          if [[ "$3" == "limit" && -n "$4" ]]; then
+            if ! [[ "$4" =~ ^[0-9]+$ ]]; then
+              echo "Error: limit must be a positive integer, got '$4'"
+              return 1
+            fi
+            limit="$4"
+          fi
           case "$2" in
-            modified) find . -type f -exec stat -c "%Y %n" {} \; | sort -rn | head -20 | cut -d' ' -f2- ;;
-            size) find . -type f -exec stat -c "%s %n" {} \; | sort -rn | head -10 ;;
-            *) echo "Usage: u7 sh files by <modified|size>" ;;
+            modified) find . -type f -exec stat -c "%Y %n" {} \; | sort -rn | head -"$limit" | cut -d' ' -f2- ;;
+            size) find . -type f -exec stat -c "%s %n" {} \; | sort -rn | head -"$limit" ;;
+            *) echo "Usage: u7 sh files by <modified|size> [limit N]" ;;
           esac
           ;;
-        *) echo "Usage: u7 sh files <match|by> [pattern|sort_type] [in <path>]" ;;
+        *) echo "Usage: u7 sh files <match <pattern> [in <path>]|by <modified|size> [limit N]>" ;;
       esac
       ;;
 
@@ -216,15 +224,29 @@ _u7_show() {
 
     processes)
       case "$1" in
-        running) ps aux ;;
+        running)
+          if [[ "$2" == "match" && -n "$3" ]]; then
+            ps aux | { head -1; grep -i "$3" | grep -v "grep -i"; }
+          else
+            ps aux
+          fi
+          ;;
         by)
+          local limit="10"
+          if [[ "$3" == "limit" && -n "$4" ]]; then
+            if ! [[ "$4" =~ ^[0-9]+$ ]]; then
+              echo "Error: limit must be a positive integer, got '$4'"
+              return 1
+            fi
+            limit="$4"
+          fi
           case "$2" in
-            cpu) ps aux | sort -k3 -rn | head ;;
-            memory) ps aux | sort -k4 -rn | head ;;
-            *) echo "Usage: u7 sh processes by <cpu|memory>" ;;
+            cpu) ps aux | sort -k3 -rn | head -"$limit" ;;
+            memory) ps aux | sort -k4 -rn | head -"$limit" ;;
+            *) echo "Usage: u7 sh processes by <cpu|memory> [limit N]" ;;
           esac
           ;;
-        *) echo "Usage: u7 sh processes <running|by> [cpu|memory]" ;;
+        *) echo "Usage: u7 sh processes <running [match <pattern>]|by <cpu|memory> [limit N]>" ;;
       esac
       ;;
 
@@ -280,12 +302,14 @@ Entities:
   json <file> [limit N]
   line <number> from <file>
   ssl of <domain>
-  files <match|by> [pattern|sort_type] [in <path>]
+  files match <pattern> [in <path>]
+  files by <modified|size> [limit N]
   diff <file1> to <file2>
   cpu
   memory
   disk
-  processes <running|by> [cpu|memory]
+  processes running [match <pattern>]
+  processes by <cpu|memory> [limit N]
   port <number>
   usage <disk|directories> [path|depth]
   network

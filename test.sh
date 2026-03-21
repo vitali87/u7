@@ -665,6 +665,28 @@ for verb in sh mk dr cv mv st rn; do
     fi
 done
 
+# Test 73: Show files by modified with custom limit
+touch f1.txt f2.txt f3.txt f4.txt f5.txt
+result=$(u7 sh files by modified limit 2 2>&1)
+line_count=$(echo "$result" | wc -l | tr -d ' ')
+assert_equals "sh files by modified respects limit" "2" "$line_count"
+
+# Test 74: Show processes by cpu with limit
+result=$(u7 sh processes by cpu limit 3 2>&1)
+line_count=$(echo "$result" | wc -l | tr -d ' ')
+if [[ "$line_count" -le 3 ]]; then
+    echo -e "${GREEN}✓${NC} sh processes by cpu respects limit"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} sh processes by cpu respects limit"
+    echo "  Expected <= 3 lines, got $line_count"
+    ((FAILED++))
+fi
+
+# Test 75: Show processes running with match filter
+result=$(u7 sh processes running match bash 2>&1)
+assert_contains "sh processes running match filters output" "bash" "$result"
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
