@@ -862,11 +862,11 @@ _u7_convert() {
         json)
           _u7_require qsv || return 1
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
-            echo "[dry-run] qsv json $input > $output"
+            echo "[dry-run] qsv tojsonl $input > $output"
           else
             local tmpfile
             tmpfile=$(mktemp "${output}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
-            qsv json "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
+            qsv tojsonl "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
           fi
           ;;
         *) echo "Unsupported conversion: csv to $to_fmt" ; return 1 ;;
