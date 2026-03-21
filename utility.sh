@@ -286,6 +286,20 @@ _u7_show() {
       curl -s "dict://dict.org/d:$2"
       ;;
 
+    env)
+      case "$1" in
+        match)
+          if [[ -z "$2" ]]; then
+            echo "Usage: u7 sh env match <pattern>"
+            return 1
+          fi
+          env | grep -i "$2"
+          ;;
+        "") env | sort ;;
+        *) echo "Usage: u7 sh env [match <pattern>]" ;;
+      esac
+      ;;
+
     functions)
       declare -F | awk '{print $3}' | grep -v "^_"
       ;;
@@ -314,6 +328,7 @@ Entities:
   usage <disk|directories> [path|depth]
   network
   git <authors|branches>
+  env [match <pattern>]
   definition of <word>
   functions
 EOF
