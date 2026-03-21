@@ -542,7 +542,7 @@ _u7_drop() {
       else
         local tmpfile
         tmpfile=$(mktemp "${file}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
-        cut -d',' -f"$num" --complement "$file" > "$tmpfile" && mv "$tmpfile" "$file"
+        cut -d',' -f"$num" --complement "$file" > "$tmpfile" && mv "$tmpfile" "$file" || { rm -f "$tmpfile"; return 1; }
       fi
       ;;
 
@@ -561,7 +561,7 @@ _u7_drop() {
       else
         local tmpfile
         tmpfile=$(mktemp "${file}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
-        awk '!x[$0]++' "$file" > "$tmpfile" && mv "$tmpfile" "$file"
+        awk '!x[$0]++' "$file" > "$tmpfile" && mv "$tmpfile" "$file" || { rm -f "$tmpfile"; return 1; }
       fi
       ;;
 
@@ -945,9 +945,7 @@ _u7_set() {
         if [[ -d "$target" ]]; then
           # Use grep with -F for literal string matching, then sed for replacement
           local -a matched_files=()
-          while IFS= read -r file; do
-            matched_files+=("$file")
-          done < <(grep -rlF "$old" "$target" 2>/dev/null)
+          mapfile -t matched_files < <(grep -rlF "$old" "$target" 2>/dev/null)
 
           if [[ ${#matched_files[@]} -eq 0 ]]; then
             echo "No files containing '$old' found in $target"
@@ -955,8 +953,8 @@ _u7_set() {
           fi
 
           echo "Will replace '$old' with '$new' in ${#matched_files[@]} file(s) under $target. Continue? (y/n)"
-          read -r confirm
-          if [[ "$confirm" != "y" ]]; then
+          read -r confirm < /dev/tty
+          if [[ "${confirm,,}" != "y" ]]; then
             echo "Aborted."
             return 0
           fi
