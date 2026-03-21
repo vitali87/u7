@@ -748,10 +748,11 @@ result=$(u7 sh git tags 2>&1)
 assert_contains "sh git tags works" "v0.0.1" "$result"
 
 # Test 86: Show git diff
-echo "change" > diff_test.txt
-git add diff_test.txt
+echo "initial" > diff_test.txt
+git add diff_test.txt && git commit -q -m "add diff_test"
+echo "changed" > diff_test.txt
 result=$(u7 sh git diff 2>&1)
-assert_contains "sh git diff works" "change" "$result"
+assert_contains "sh git diff works" "changed" "$result"
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
