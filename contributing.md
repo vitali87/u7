@@ -10,6 +10,8 @@ Please update the `flake.nix` file accordingly if the library is not listed ther
 
 ## Running tests
 
+From the repository root:
+
 ```bash
 nix develop --command bash test.sh
 ```
