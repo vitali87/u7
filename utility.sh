@@ -183,6 +183,10 @@ _u7_show() {
         by)
           local limit="20"
           if [[ "$3" == "limit" && -n "$4" ]]; then
+            if ! [[ "$4" =~ ^[0-9]+$ ]]; then
+              echo "Error: limit must be a positive integer, got '$4'"
+              return 1
+            fi
             limit="$4"
           fi
           case "$2" in
@@ -191,7 +195,7 @@ _u7_show() {
             *) echo "Usage: u7 sh files by <modified|size> [limit N]" ;;
           esac
           ;;
-        *) echo "Usage: u7 sh files <match|by> [pattern|sort_type] [in <path>]" ;;
+        *) echo "Usage: u7 sh files <match <pattern> [in <path>]|by <modified|size> [limit N]>" ;;
       esac
       ;;
 
@@ -222,8 +226,7 @@ _u7_show() {
       case "$1" in
         running)
           if [[ "$2" == "match" && -n "$3" ]]; then
-            ps aux | head -1
-            ps aux | grep -i "$3" | grep -v grep
+            ps aux | { head -1; grep -i "$3" | grep -v "grep -i"; }
           else
             ps aux
           fi
@@ -231,6 +234,10 @@ _u7_show() {
         by)
           local limit="10"
           if [[ "$3" == "limit" && -n "$4" ]]; then
+            if ! [[ "$4" =~ ^[0-9]+$ ]]; then
+              echo "Error: limit must be a positive integer, got '$4'"
+              return 1
+            fi
             limit="$4"
           fi
           case "$2" in
