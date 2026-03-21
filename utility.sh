@@ -822,6 +822,36 @@ _u7_convert() {
       esac
       ;;
 
+    csv)
+      local input="$1"
+      if [[ "$2" != "to" ]]; then
+        echo "Usage: u7 cv csv <input> to json [yield <output>]"
+        return 1
+      fi
+      local to_fmt="$3"
+      local output="${input%.*}.$to_fmt"
+      if [[ "$4" == "yield" ]]; then
+        output="$5"
+      fi
+
+      if [[ ! -f "$input" ]]; then
+        echo "File not found: $input"
+        return 1
+      fi
+
+      case "$to_fmt" in
+        json)
+          _u7_require qsv || return 1
+          if [[ "$_U7_DRY_RUN" == "1" ]]; then
+            echo "[dry-run] qsv tojson $input > $output"
+          else
+            qsv tojson "$input" > "$output"
+          fi
+          ;;
+        *) echo "Unsupported conversion: csv to $to_fmt" ; return 1 ;;
+      esac
+      ;;
+
     case)
       if ! _u7_require rename "rename (perl-rename or prename)"; then
         echo "Hint: Install 'rename' package (perl-rename on Debian/Ubuntu, rename on others)"
@@ -878,6 +908,7 @@ Entities:
   image <input> to <format> [yield <output>]   Convert image (png/jpg/webp/gif/etc)
   video <input> to <format> [yield <output>]   Convert video
   json <input> to yaml [yield <output>]  Convert JSON to YAML
+  csv <input> to json [yield <output>]   Convert CSV to JSON
   case upper to lower on <files...>      Rename to lowercase
   case lower to upper on <files...>      Rename to uppercase
   spaces to underscores on <file>        Replace spaces in filenames
