@@ -8,6 +8,12 @@ Integration of third-party libraries are welcomed. The only requirement is to ch
 
 Please update the `flake.nix` file accordingly if the library is not listed there.
 
+## Running tests
+
+```bash
+nix develop --command bash test.sh
+```
+
 ## Anything in mind?
 Please create an **Issue** if you would like to discuss potential features or directions.
 
