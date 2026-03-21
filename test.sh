@@ -617,6 +617,8 @@ for verb in sh mk dr cv mv st rn; do
         ((PASSED++))
     else
         echo -e "${RED}✗${NC} u7 $verb rejects unknown entity"
+        echo "  Expected to contain 'Unknown' or 'Usage:'"
+        echo "  Got: $result"
         ((FAILED++))
     fi
 done
@@ -657,6 +659,8 @@ for verb in sh mk dr cv mv st rn; do
         ((PASSED++))
     else
         echo -e "${RED}✗${NC} u7 $verb --help works"
+        echo "  Expected to contain 'Usage:' or 'Entities:'"
+        echo "  Got: $result"
         ((FAILED++))
     fi
 done

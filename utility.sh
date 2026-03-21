@@ -1007,7 +1007,7 @@ _u7_set() {
           echo "[dry-run] Replace tabs with spaces in text files under '${4:-.}'"
         else
           grep -rl $'\t' "${4:-.}" 2>/dev/null | while IFS= read -r file; do
-            if file -b --mime-type "$file" | grep -q '^text/'; then
+            if grep -qI '' "$file" 2>/dev/null; then
               sed -i'' 's/\t/  /g' "$file"
             fi
           done
