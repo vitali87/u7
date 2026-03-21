@@ -286,6 +286,20 @@ _u7_show() {
       curl -s "dict://dict.org/d:$2"
       ;;
 
+    env)
+      case "$1" in
+        match)
+          if [[ -z "$2" ]]; then
+            echo "Usage: u7 sh env match <pattern>"
+            return 1
+          fi
+          env | grep -i "$2"
+          ;;
+        "") env | sort ;;
+        *) echo "Usage: u7 sh env [match <pattern>]" ;;
+      esac
+      ;;
+
     functions)
       declare -F | awk '{print $3}' | grep -v "^_"
       ;;
@@ -314,6 +328,7 @@ Entities:
   usage <disk|directories> [path|depth]
   network
   git <authors|branches>
+  env [match <pattern>]
   definition of <word>
   functions
 EOF
@@ -847,11 +862,11 @@ _u7_convert() {
         json)
           _u7_require qsv || return 1
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
-            echo "[dry-run] qsv tojson $input > $output"
+            echo "[dry-run] qsv tojsonl $input > $output"
           else
             local tmpfile
             tmpfile=$(mktemp "${output}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
-            qsv tojson "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
+            qsv tojsonl "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
           fi
           ;;
         *) echo "Unsupported conversion: csv to $to_fmt" ; return 1 ;;

@@ -706,6 +706,18 @@ assert_contains "cv csv rejects unsupported format" "Unsupported" "$result"
 result=$(u7 cv csv nonexistent.csv to json 2>&1)
 assert_contains "cv csv reports missing file" "not found" "$result"
 
+# Test 79: Show env
+result=$(u7 sh env 2>&1)
+assert_contains "sh env lists variables" "PATH" "$result"
+
+# Test 80: Show env match
+result=$(u7 sh env match PATH 2>&1)
+assert_contains "sh env match filters output" "PATH" "$result"
+
+# Test 81: Show env match requires pattern
+result=$(u7 sh env match 2>&1)
+assert_contains "sh env match requires pattern" "Usage:" "$result"
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
