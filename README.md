@@ -9,6 +9,9 @@
   <a href="https://github.com/vitali87/u7/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/vitali87/u7" alt="License" />
   </a>
+  <a href="https://gitcgr.com/vitali87/u7">
+    <img src="https://gitcgr.com/badge/vitali87/u7.svg" alt="gitcgr" />
+  </a>
 </div>
 
 # u7 - Universal 7 CLI
