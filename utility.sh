@@ -321,8 +321,8 @@ _u7_show() {
         return 1
       fi
       case "$method" in
-        get) curl -sL -- "$url" ;;
-        head|headers) curl -sIL -- "$url" ;;
+        get) curl -sL --max-time 30 -- "$url" ;;
+        head|headers) curl -sIL --max-time 30 -- "$url" ;;
         *) echo "$usage" ; return 1 ;;
       esac
       ;;
