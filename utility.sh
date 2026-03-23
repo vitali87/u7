@@ -312,6 +312,20 @@ _u7_show() {
       esac
       ;;
 
+    http)
+      local method="$1"
+      local url="$2"
+      if [[ -z "$method" || -z "$url" ]]; then
+        echo "Usage: u7 sh http <get|head|headers> <url>"
+        return 1
+      fi
+      case "$method" in
+        get) curl -sL "$url" ;;
+        head|headers) curl -sI "$url" ;;
+        *) echo "Usage: u7 sh http <get|head|headers> <url>" ; return 1 ;;
+      esac
+      ;;
+
     functions)
       declare -F | awk '{print $3}' | grep -v "^_"
       ;;
@@ -341,6 +355,7 @@ Entities:
   network
   git <authors|branches|tags|log [N]|status|diff|remotes>
   env [match <pattern>]
+  http <get|head|headers> <url>
   definition of <word>
   functions
 EOF
