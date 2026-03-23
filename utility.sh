@@ -315,14 +315,15 @@ _u7_show() {
     http)
       local method="$1"
       local url="$2"
+      local usage="Usage: u7 sh http <get|head|headers> <url>"
       if [[ -z "$method" || -z "$url" ]]; then
-        echo "Usage: u7 sh http <get|head|headers> <url>"
+        echo "$usage"
         return 1
       fi
       case "$method" in
-        get) curl -sL "$url" ;;
-        head|headers) curl -sI "$url" ;;
-        *) echo "Usage: u7 sh http <get|head|headers> <url>" ; return 1 ;;
+        get) curl -sL -- "$url" ;;
+        head|headers) curl -sIL -- "$url" ;;
+        *) echo "$usage" ; return 1 ;;
       esac
       ;;
 
