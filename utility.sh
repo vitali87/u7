@@ -454,6 +454,23 @@ _u7_make() {
       esac
       ;;
 
+    clone)
+      local repo="$1"
+      if [[ -z "$repo" ]]; then
+        echo "Usage: u7 mk clone <repo> [to <directory>]"
+        return 1
+      fi
+      local dest=""
+      if [[ "$2" == "to" && -n "$3" ]]; then
+        dest="$3"
+      fi
+      if [[ -n "$dest" ]]; then
+        _u7_exec git clone "$repo" "$dest"
+      else
+        _u7_exec git clone "$repo"
+      fi
+      ;;
+
     sequence)
       if [[ "$1" != "with" || "$2" != "prefix" ]]; then
         echo "Usage: u7 mk sequence with prefix <prefix> limit <N>"
@@ -484,6 +501,7 @@ Entities:
   copy <source> to <destination>           Copy file/directory
   link <source> to <destination>           Create symbolic link
   archive <output> from <files...>         Create archive from <files...> to <output>
+  clone <repo> [to <directory>]            Git clone a repository
   sequence with prefix <prefix> limit <N>  Generate numbered sequence with prefix <prefix> and limit <N>
 EOF
       ;;
