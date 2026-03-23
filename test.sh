@@ -765,6 +765,55 @@ assert_contains "mk clone to dry-run works" "mydir" "$result"
 result=$(u7 mk clone 2>&1)
 assert_contains "mk clone requires repo" "Usage:" "$result"
 
+# === Dry-run tests ===
+echo ""
+echo "Dry-run tests"
+echo "==================="
+cd "$TEST_DIR"
+
+# Test 90: Dry-run mk dir
+result=$(u7 --dry-run mk dir dryrun_dir 2>&1)
+assert_contains "dry-run mk dir shows command" "[dry-run]" "$result"
+test ! -d "dryrun_dir"
+assert_equals "dry-run mk dir does not create directory" "0" "$?"
+
+# Test 91: Dry-run dr file
+touch dryrun_delete.txt
+result=$(u7 --dry-run dr file dryrun_delete.txt 2>&1)
+assert_contains "dry-run dr file shows command" "[dry-run]" "$result"
+test -f "dryrun_delete.txt"
+assert_equals "dry-run dr file does not delete" "0" "$?"
+
+# Test 92: Dry-run st text
+echo "original" > dryrun_replace.txt
+result=$(u7 --dry-run st text "original" to "replaced" in dryrun_replace.txt 2>&1)
+assert_contains "dry-run st text shows command" "[dry-run]" "$result"
+result=$(cat dryrun_replace.txt)
+assert_equals "dry-run st text does not modify file" "original" "$result"
+
+# Test 93: Dry-run mv file
+echo "moveme" > dryrun_mv.txt
+result=$(u7 --dry-run mv file dryrun_mv.txt to moved.txt 2>&1)
+assert_contains "dry-run mv file shows command" "[dry-run]" "$result"
+test -f "dryrun_mv.txt"
+assert_equals "dry-run mv file source still exists" "0" "$?"
+test ! -f "moved.txt"
+assert_equals "dry-run mv file destination not created" "0" "$?"
+
+# Test 94: Dry-run mk archive
+echo "data" > dryrun_archive.txt
+result=$(u7 --dry-run mk archive dryrun.tar.gz from dryrun_archive.txt 2>&1)
+assert_contains "dry-run mk archive shows command" "[dry-run]" "$result"
+test ! -f "dryrun.tar.gz"
+assert_equals "dry-run mk archive does not create archive" "0" "$?"
+
+# Test 95: Dry-run rn job
+result=$(u7 --dry-run rn job "touch dryrun_job.txt" in 1s 2>&1)
+assert_contains "dry-run rn job shows command" "[dry-run]" "$result"
+sleep 2
+test ! -f "dryrun_job.txt"
+assert_equals "dry-run rn job does not execute command" "0" "$?"
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
