@@ -1,3 +1,15 @@
+_u7_archive_output_file() {
+  local archive="$1"
+  local dest="$2"
+  if [[ -d "$dest" ]]; then
+    local basename
+    basename=$(basename "$archive")
+    echo "$dest/${basename%.*}"
+  else
+    echo "$dest"
+  fi
+}
+
 _u7_convert() {
   local entity="$1"
   shift
@@ -21,28 +33,13 @@ _u7_convert() {
 
       local lowercase=$(echo "$archive" | tr '[:upper:]' '[:lower:]')
 
-      # Helper function to get output filename for single-file archives
-      _get_output_file() {
-        local archive="$1"
-        local dest="$2"
-        if [[ -d "$dest" ]]; then
-          # Dest is directory, derive filename from archive
-          local basename=$(basename "$archive")
-          # Remove compression extension
-          echo "$dest/${basename%.*}"
-        else
-          # Dest is a file path
-          echo "$dest"
-        fi
-      }
-
       case "$lowercase" in
         *.tar.xz|*.tar.gz|*.tar.bz2|*.tar|*.tgz|*.tbz|*.tbz2|*.txz|*.tb2)
           _u7_exec tar -xvf "$archive" -C "$dest" ;;
         *.bz|*.bz2)
           _u7_exec bzip2 -d -k "$archive" ;;
         *.gz)
-          local outfile=$(_get_output_file "$archive" "$dest")
+          local outfile=$(_u7_archive_output_file "$archive" "$dest")
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
             echo "[dry-run] gunzip -c $archive > $outfile"
           else
@@ -58,7 +55,7 @@ _u7_convert() {
         *.tar.lzma)
           _u7_exec tar -xf "$archive" -C "$dest" --lzma ;;
         *.xz)
-          local outfile=$(_get_output_file "$archive" "$dest")
+          local outfile=$(_u7_archive_output_file "$archive" "$dest")
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
             echo "[dry-run] unxz -c $archive > $outfile"
           else
@@ -66,7 +63,7 @@ _u7_convert() {
           fi
           ;;
         *.lzma)
-          local outfile=$(_get_output_file "$archive" "$dest")
+          local outfile=$(_u7_archive_output_file "$archive" "$dest")
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
             echo "[dry-run] unlzma -c $archive > $outfile"
           else
