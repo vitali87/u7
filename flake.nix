@@ -37,10 +37,11 @@
 
                         pkgs.rsync
 
+                        pkgs.bash
+
                         pkgs.openssl
                         pkgs.yq-go
                         pkgs.git
-                        pkgs.bash-completion
 
                         pkgs.libwebp
                         pkgs.gifsicle
@@ -51,9 +52,10 @@
                     packages.default = pkgs.stdenv.mkDerivation {
                         pname = "u7";
                         version = "0.1.0";
-                        src = ./.;
+                        src = pkgs.lib.cleanSource ./.;
+                        dontBuild = true;
 
-                        buildInputs = [ pkgs.bash ] ++ runtimeDeps;
+                        buildInputs = runtimeDeps;
                         nativeBuildInputs = [ pkgs.makeWrapper ];
 
                         installPhase = ''
@@ -81,7 +83,7 @@ BINEOF
                     };
 
                     devShells.default = pkgs.mkShell {
-                        buildInputs = runtimeDeps;
+                        buildInputs = runtimeDeps ++ [ pkgs.bash-completion ];
 
                         shellHook = ''
                             source ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
