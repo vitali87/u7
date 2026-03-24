@@ -394,7 +394,6 @@ Entities:
   env [match <pattern>]
   http <get|head|headers> <url>
   docker <containers|images|volumes|networks|all>
-  system
   definition of <word>
   functions
 
@@ -404,9 +403,8 @@ Examples:
   u7 sh files match "TODO" in ./src  Search for pattern
   u7 sh processes by cpu limit 5     Top 5 CPU consumers
   u7 sh git log 20                   Last 20 commits
-  u7 sh http get https://example.com Fetch URL content
-  u7 sh docker all                   Overview of Docker resources
-  u7 sh system                       Show system info
+  u7 sh http get https://example.com  Fetch URL content
+  u7 sh docker all                    Overview of Docker resources
 EOF
       ;;
 
