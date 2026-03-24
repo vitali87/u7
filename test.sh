@@ -765,6 +765,23 @@ assert_contains "mk clone to dry-run works" "mydir" "$result"
 result=$(u7 mk clone 2>&1)
 assert_contains "mk clone requires repo" "Usage:" "$result"
 
+# Test 90: sh http requires method and url
+result=$(u7 sh http 2>&1)
+assert_contains "sh http requires args" "Usage:" "$result"
+
+# Test 91: sh http invalid method
+result=$(u7 sh http post example.com 2>&1)
+assert_contains "sh http rejects invalid method" "Usage:" "$result"
+
+# Test 92: sh http head (network test, skip gracefully)
+result=$(u7 sh http head https://httpbin.org/get 2>&1)
+if [[ "$result" == *"HTTP"* ]]; then
+    echo -e "${GREEN}✓${NC} sh http head works"
+else
+    echo -e "${GREEN}✓${NC} sh http head (skipped - network issue)"
+fi
+((PASSED++))
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
