@@ -949,6 +949,7 @@ _u7_convert() {
         return 1
       fi
 
+      # Requires yq-go (Mike Farah's yq), provided by Nix
       _u7_require yq || return 1
 
       case "$to_fmt" in
