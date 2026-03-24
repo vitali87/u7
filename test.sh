@@ -904,6 +904,30 @@ assert_contains "sh system shows user" "User:" "$result"
 cd /
 rm -rf "$TEST_DIR"
 
+# Test: Convert YAML to JSON
+TEST_DIR=$(mktemp -d)
+cd "$TEST_DIR"
+echo -e "key: value\nlist:\n  - one\n  - two" > test.yaml
+u7 cv yaml test.yaml to json yield test.json >/dev/null 2>&1
+if [[ -f "test.json" ]]; then
+    result=$(cat test.json)
+    assert_contains "cv yaml to json works" "key" "$result"
+else
+    echo -e "${RED}✗${NC} cv yaml to json (file not created)"
+    ((FAILED++))
+fi
+
+# Test: Convert YAML missing file
+result=$(u7 cv yaml nonexistent.yaml to json 2>&1)
+assert_contains "cv yaml reports missing file" "not found" "$result"
+
+# Test: Convert YAML unsupported format
+result=$(u7 cv yaml test.yaml to xml 2>&1)
+assert_contains "cv yaml rejects unsupported format" "Unsupported" "$result"
+
+cd /
+rm -rf "$TEST_DIR"
+
 # Summary
 echo "==================="
 echo "Tests passed: $PASSED"
