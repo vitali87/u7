@@ -2,16 +2,16 @@ _u7_complete_entities() {
   local verb="$1" cur="$2"
   case "$verb" in
     show|sh)
-      COMPREPLY=($(compgen -W "ip csv json line ssl files diff cpu memory disk processes port usage network git env definition functions --help" -- "$cur"))
+      COMPREPLY=($(compgen -W "ip csv json line ssl files diff cpu memory disk processes port usage network git env http docker system definition functions --help" -- "$cur"))
       ;;
     make|mk)
-      COMPREPLY=($(compgen -W "dir file password user copy link archive sequence --help" -- "$cur"))
+      COMPREPLY=($(compgen -W "dir file password user copy link archive clone template sequence --help" -- "$cur"))
       ;;
     drop|dr)
-      COMPREPLY=($(compgen -W "file dir dirs files line lines column duplicates process user --help" -- "$cur"))
+      COMPREPLY=($(compgen -W "file dir dirs files line lines column duplicates process user docker --help" -- "$cur"))
       ;;
     convert|cv)
-      COMPREPLY=($(compgen -W "archive files image video json csv case spaces --help" -- "$cur"))
+      COMPREPLY=($(compgen -W "archive files image video json yaml csv case spaces --help" -- "$cur"))
       ;;
     move|mv)
       COMPREPLY=($(compgen -W "file sync --help" -- "$cur"))
@@ -36,12 +36,15 @@ _u7_complete_args() {
         usage) COMPREPLY=($(compgen -W "disk directories" -- "$cur")) ;;
         git) COMPREPLY=($(compgen -W "authors branches tags log status diff remotes" -- "$cur")) ;;
         env) COMPREPLY=($(compgen -W "match" -- "$cur")) ;;
+        http) COMPREPLY=($(compgen -W "get head headers" -- "$cur")) ;;
+        docker) COMPREPLY=($(compgen -W "containers images volumes networks all" -- "$cur")) ;;
         *) _filedir ;;
       esac
       ;;
     make|mk)
       case "$entity" in
         copy|link) _filedir ;;
+        template) COMPREPLY=($(compgen -W "python node bash web" -- "$cur")) ;;
       esac
       ;;
     drop|dr)
@@ -49,6 +52,7 @@ _u7_complete_args() {
         dirs) COMPREPLY=($(compgen -W "if" -- "$cur")) ;;
         files) COMPREPLY=($(compgen -W "but" -- "$cur")) ;;
         lines) COMPREPLY=($(compgen -W "if" -- "$cur")) ;;
+        docker) COMPREPLY=($(compgen -W "container image volume prune" -- "$cur")) ;;
         *) _filedir ;;
       esac
       ;;

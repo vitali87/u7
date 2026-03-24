@@ -2,15 +2,10 @@
 
 _U7_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$_U7_DIR/lib/core.sh"
-source "$_U7_DIR/lib/show.sh"
-source "$_U7_DIR/lib/make.sh"
-source "$_U7_DIR/lib/drop.sh"
-source "$_U7_DIR/lib/convert.sh"
-source "$_U7_DIR/lib/move.sh"
-source "$_U7_DIR/lib/set.sh"
-source "$_U7_DIR/lib/run.sh"
-source "$_U7_DIR/lib/completions.sh"
+for _u7_mod in core show make drop convert move set run completions; do
+  source "$_U7_DIR/lib/${_u7_mod}.sh" || { echo "u7: failed to load lib/${_u7_mod}.sh" >&2; return 1; }
+done
+unset _u7_mod
 
 u7() {
   _U7_DRY_RUN=0
