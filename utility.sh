@@ -1381,6 +1381,7 @@ _u7_complete_args() {
   esac
 }
 
+# shellcheck disable=SC2034,SC2207
 _u7_completions() {
   local cur prev words cword
   _init_completion 2>/dev/null || {
