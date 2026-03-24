@@ -533,8 +533,8 @@ _u7_make() {
         echo "Usage: u7 mk template <python|node|bash|web> <project-name>"
         return 1
       fi
-      if [[ "$name" == *..* || "$name" == /* ]]; then
-        echo "Error: project name must not contain '..' or start with '/'"
+      if [[ ! "$name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "Error: project name must contain only alphanumerics, hyphens, and underscores"
         return 1
       fi
       if [[ -d "$name" ]]; then

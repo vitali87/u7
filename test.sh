@@ -841,7 +841,7 @@ fi
 # Test: mk template python
 cd "$TEST_DIR"
 u7 mk template python myapp >/dev/null 2>&1
-if [[ -f "myapp/src/main.py" && -f "myapp/README.md" && -f "myapp/tests/__init__.py" ]]; then
+if [[ -f "myapp/src/main.py" && -f "myapp/README.md" && -f "myapp/src/__init__.py" && -f "myapp/tests/__init__.py" ]]; then
     echo -e "${GREEN}✓${NC} mk template python works"
     ((PASSED++))
 else
@@ -883,9 +883,13 @@ result=$(u7 mk template 2>&1)
 assert_contains "mk template requires args" "Usage:" "$result"
 
 # Test: mk template rejects existing directory
-mkdir -p existing_dir
-result=$(u7 mk template python existing_dir 2>&1)
+mkdir -p existingdir
+result=$(u7 mk template python existingdir 2>&1)
 assert_contains "mk template rejects existing dir" "already exists" "$result"
+
+# Test: mk template rejects special characters in name
+result=$(u7 mk template python "my project" 2>&1)
+assert_contains "mk template rejects special chars" "alphanumerics" "$result"
 
 # Cleanup
 cd /
