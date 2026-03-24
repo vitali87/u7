@@ -923,6 +923,10 @@ assert_contains "cv yaml reports missing file" "not found" "$result"
 result=$(u7 cv yaml test.yaml to xml 2>&1)
 assert_contains "cv yaml rejects unsupported format" "Unsupported" "$result"
 
+# Cleanup
+cd /
+rm -rf "$TEST_DIR"
+
 # Summary
 echo "==================="
 echo "Tests passed: $PASSED"
