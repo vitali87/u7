@@ -319,7 +319,17 @@ _u7_show() {
             echo "Error: docker is not installed or not in PATH"
             return 1
           fi
-          ;;&
+          ;;
+        "")
+          echo "Usage: u7 sh docker <containers|images|volumes|networks|all>"
+          return 0
+          ;;
+        *)
+          echo "Usage: u7 sh docker <containers|images|volumes|networks|all>"
+          return 1
+          ;;
+      esac
+      case "$1" in
         containers) docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" ;;
         images) docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" ;;
         volumes) docker volume ls ;;
@@ -337,7 +347,6 @@ _u7_show() {
           echo "=== Networks ==="
           docker network ls
           ;;
-        *) echo "Usage: u7 sh docker <containers|images|volumes|networks|all>" ;;
       esac
       ;;
 
