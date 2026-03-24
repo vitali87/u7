@@ -843,6 +843,9 @@ result=$(u7 sh system 2>&1)
 assert_contains "sh system shows hostname" "Hostname:" "$result"
 assert_contains "sh system shows OS" "OS:" "$result"
 assert_contains "sh system shows kernel" "Kernel:" "$result"
+assert_contains "sh system shows arch" "Arch:" "$result"
+assert_contains "sh system shows uptime" "Uptime:" "$result"
+assert_contains "sh system shows shell" "Shell:" "$result"
 assert_contains "sh system shows user" "User:" "$result"
 
 # Cleanup
