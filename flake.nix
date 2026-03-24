@@ -62,23 +62,12 @@
                             mkdir -p $out/share/u7 $out/bin
                             cp utility.sh $out/share/u7/utility.sh
 
-                            cat > $out/bin/u7-init <<'INITEOF'
-#!/usr/bin/env bash
-# Source this file to load u7 into your shell:
-#   source "$(u7-init)"
-echo "${placeholder "out"}/share/u7/utility.sh"
-INITEOF
-                            chmod +x $out/bin/u7-init
+                            makeWrapper ${pkgs.bash}/bin/bash $out/bin/u7 \
+                                --prefix PATH : ${pkgs.lib.makeBinPath runtimeDeps} \
+                                --add-flags '-c "source ${placeholder "out"}/share/u7/utility.sh; u7 \"\$@\"" --'
 
-                            # Create a wrapper script for standalone use
-                            cat > $out/bin/u7 <<'BINEOF'
-#!/usr/bin/env bash
-source "${placeholder "out"}/share/u7/utility.sh"
-u7 "$@"
-BINEOF
-                            chmod +x $out/bin/u7
-                            wrapProgram $out/bin/u7 \
-                                --prefix PATH : ${pkgs.lib.makeBinPath runtimeDeps}
+                            makeWrapper ${pkgs.bash}/bin/bash $out/bin/u7-init \
+                                --add-flags '-c "echo ${placeholder "out"}/share/u7/utility.sh"'
                         '';
                     };
 
