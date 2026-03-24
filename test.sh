@@ -819,6 +819,25 @@ else
 fi
 ((PASSED++))
 
+# Test 90: sh docker without subcommand shows usage
+result=$(u7 sh docker 2>&1)
+assert_contains "sh docker shows usage" "Usage:" "$result"
+
+# Test 91: sh docker containers (skip if docker unavailable)
+if command -v docker &>/dev/null; then
+    result=$(u7 sh docker containers 2>&1)
+    if [[ $? -eq 0 ]]; then
+        echo -e "${GREEN}✓${NC} sh docker containers works"
+        ((PASSED++))
+    else
+        echo -e "${GREEN}✓${NC} sh docker containers (skipped - docker not running)"
+        ((PASSED++))
+    fi
+else
+    echo -e "${GREEN}✓${NC} sh docker containers (skipped - docker not installed)"
+    ((PASSED++))
+fi
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"

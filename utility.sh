@@ -312,6 +312,44 @@ _u7_show() {
       esac
       ;;
 
+    docker)
+      case "$1" in
+        containers|images|volumes|networks|all)
+          if ! command -v docker &>/dev/null; then
+            echo "Error: docker is not installed or not in PATH"
+            return 1
+          fi
+          ;;
+        "")
+          echo "Usage: u7 sh docker <containers|images|volumes|networks|all>"
+          return 0
+          ;;
+        *)
+          echo "Usage: u7 sh docker <containers|images|volumes|networks|all>"
+          return 1
+          ;;
+      esac
+      case "$1" in
+        containers) docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" ;;
+        images) docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" ;;
+        volumes) docker volume ls ;;
+        networks) docker network ls ;;
+        all)
+          echo "=== Containers ==="
+          docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"
+          echo ""
+          echo "=== Images ==="
+          docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+          echo ""
+          echo "=== Volumes ==="
+          docker volume ls
+          echo ""
+          echo "=== Networks ==="
+          docker network ls
+          ;;
+      esac
+      ;;
+
     http)
       local method="$1"
       local url="$2"
@@ -357,6 +395,7 @@ Entities:
   git <authors|branches|tags|log [N]|status|diff|remotes>
   env [match <pattern>]
   http <get|head|headers> <url>
+  docker <containers|images|volumes|networks|all>
   definition of <word>
   functions
 EOF
