@@ -905,8 +905,6 @@ cd /
 rm -rf "$TEST_DIR"
 
 # Test: Convert YAML to JSON
-TEST_DIR=$(mktemp -d)
-cd "$TEST_DIR"
 echo -e "key: value\nlist:\n  - one\n  - two" > test.yaml
 u7 cv yaml test.yaml to json yield test.json >/dev/null 2>&1
 if [[ -f "test.json" ]]; then
@@ -924,9 +922,6 @@ assert_contains "cv yaml reports missing file" "not found" "$result"
 # Test: Convert YAML unsupported format
 result=$(u7 cv yaml test.yaml to xml 2>&1)
 assert_contains "cv yaml rejects unsupported format" "Unsupported" "$result"
-
-cd /
-rm -rf "$TEST_DIR"
 
 # Summary
 echo "==================="

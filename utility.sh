@@ -937,6 +937,10 @@ _u7_convert() {
       local to_fmt="$3"
       local output="${input%.*}.$to_fmt"
       if [[ "$4" == "yield" ]]; then
+        if [[ -z "$5" ]]; then
+          echo "Usage: u7 cv yaml <input> to json [yield <output>]"
+          return 1
+        fi
         output="$5"
       fi
 
@@ -945,12 +949,16 @@ _u7_convert() {
         return 1
       fi
 
+      _u7_require yq || return 1
+
       case "$to_fmt" in
         json)
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
             echo "[dry-run] yq -o=json < $input > $output"
           else
-            yq -o=json < "$input" > "$output"
+            local tmpfile
+            tmpfile=$(mktemp "${output}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
+            yq -o=json < "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
           fi
           ;;
         *) echo "Unsupported conversion: yaml to $to_fmt" ; return 1 ;;
