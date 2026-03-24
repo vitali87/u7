@@ -838,10 +838,12 @@ else
     ((PASSED++))
 fi
 
-# Test: sh system
+# Test 92: sh system
 result=$(u7 sh system 2>&1)
 assert_contains "sh system shows hostname" "Hostname:" "$result"
 assert_contains "sh system shows OS" "OS:" "$result"
+assert_contains "sh system shows kernel" "Kernel:" "$result"
+assert_contains "sh system shows user" "User:" "$result"
 
 # Cleanup
 cd /

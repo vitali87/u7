@@ -370,7 +370,7 @@ _u7_show() {
       echo "OS:        $(uname -s)"
       echo "Kernel:    $(uname -r)"
       echo "Arch:      $(uname -m)"
-      echo "Uptime:    $(uptime -p 2>/dev/null || uptime | sed 's/.*up /up /' | sed 's/,.*load.*//')"
+      echo "Uptime:    $(uptime -p 2>/dev/null || uptime | sed 's/.*up //;s/[0-9]* user.*//;s/,\s*$//')"
       echo "Shell:     $SHELL"
       echo "User:      $(whoami)"
       ;;
