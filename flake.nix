@@ -56,18 +56,27 @@
                         dontBuild = true;
 
                         buildInputs = runtimeDeps;
-                        nativeBuildInputs = [ pkgs.makeWrapper ];
+                        nativeBuildInputs = [];
 
-                        installPhase = ''
+                        installPhase = let
+                          runtimePath = pkgs.lib.makeBinPath runtimeDeps;
+                        in ''
                             mkdir -p $out/share/u7 $out/bin
                             cp utility.sh $out/share/u7/utility.sh
 
-                            makeWrapper ${pkgs.bash}/bin/bash $out/bin/u7 \
-                                --prefix PATH : ${pkgs.lib.makeBinPath runtimeDeps} \
-                                --add-flags '-c "source ${placeholder "out"}/share/u7/utility.sh; u7 \"\$@\"" --'
+                            cat > $out/bin/u7 <<EOF
+#!${pkgs.bash}/bin/bash
+export PATH="${runtimePath}:\$PATH"
+source "$out/share/u7/utility.sh"
+u7 "\$@"
+EOF
+                            chmod +x $out/bin/u7
 
-                            makeWrapper ${pkgs.bash}/bin/bash $out/bin/u7-init \
-                                --add-flags '-c "echo ${placeholder "out"}/share/u7/utility.sh"'
+                            cat > $out/bin/u7-init <<EOF
+#!${pkgs.bash}/bin/bash
+echo "$out/share/u7/utility.sh"
+EOF
+                            chmod +x $out/bin/u7-init
                         '';
                     };
 
