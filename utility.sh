@@ -365,6 +365,16 @@ _u7_show() {
       esac
       ;;
 
+    system)
+      echo "Hostname:  $(hostname)"
+      echo "OS:        $(uname -s)"
+      echo "Kernel:    $(uname -r)"
+      echo "Arch:      $(uname -m)"
+      echo "Uptime:    $(uptime -p 2>/dev/null || uptime | sed 's/.*up //;s/[0-9]* user.*//;s/,[[:space:]]*$//')"
+      echo "Shell:     $SHELL"
+      echo "User:      $(whoami)"
+      ;;
+
     functions)
       declare -F | awk '{print $3}' | grep -v "^_"
       ;;
@@ -396,6 +406,7 @@ Entities:
   env [match <pattern>]
   http <get|head|headers> <url>
   docker <containers|images|volumes|networks|all>
+  system
   definition of <word>
   functions
 EOF
