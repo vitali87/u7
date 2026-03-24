@@ -564,7 +564,7 @@ _u7_make() {
         bash)
           mkdir -p "$name"
           echo "# $name" > "$name/README.md"
-          printf '#!/usr/bin/env bash\nset -euo pipefail\n\necho "Hello from %s"\n' "$name" > "$name/main.sh"
+          printf '#!/usr/bin/env bash\nset -euo pipefail\n\necho '\''Hello from %s'\''\n' "$name" > "$name/main.sh"
           chmod +x "$name/main.sh"
           echo "Created Bash project: $name"
           ;;
