@@ -838,6 +838,31 @@ else
     ((PASSED++))
 fi
 
+# Test: mk template python
+cd "$TEST_DIR"
+u7 mk template python myapp >/dev/null 2>&1
+if [[ -f "myapp/src/main.py" && -f "myapp/README.md" && -f "myapp/tests/__init__.py" ]]; then
+    echo -e "${GREEN}✓${NC} mk template python works"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk template python failed"
+    ((FAILED++))
+fi
+
+# Test: mk template node
+u7 mk template node mynode >/dev/null 2>&1
+if [[ -f "mynode/package.json" && -f "mynode/src/index.js" ]]; then
+    echo -e "${GREEN}✓${NC} mk template node works"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk template node failed"
+    ((FAILED++))
+fi
+
+# Test: mk template requires args
+result=$(u7 mk template 2>&1)
+assert_contains "mk template requires args" "Usage:" "$result"
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"

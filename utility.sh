@@ -526,6 +526,45 @@ _u7_make() {
       fi
       ;;
 
+    template)
+      local tmpl="$1"
+      local name="$2"
+      if [[ -z "$tmpl" || -z "$name" ]]; then
+        echo "Usage: u7 mk template <python|node|bash|web> <project-name>"
+        return 1
+      fi
+      case "$tmpl" in
+        python)
+          _u7_exec mkdir -p "$name/src" "$name/tests"
+          echo "# $name" > "$name/README.md"
+          echo "#!/usr/bin/env python3" > "$name/src/main.py"
+          touch "$name/src/__init__.py" "$name/tests/__init__.py"
+          echo "Created Python project: $name"
+          ;;
+        node)
+          _u7_exec mkdir -p "$name/src" "$name/test"
+          echo "# $name" > "$name/README.md"
+          echo '{"name": "'"$name"'", "version": "0.1.0", "main": "src/index.js"}' > "$name/package.json"
+          echo "// $name" > "$name/src/index.js"
+          echo "Created Node project: $name"
+          ;;
+        bash)
+          _u7_exec mkdir -p "$name"
+          echo "# $name" > "$name/README.md"
+          printf '#!/usr/bin/env bash\nset -euo pipefail\n\necho "Hello from %s"\n' "$name" > "$name/main.sh"
+          chmod +x "$name/main.sh"
+          echo "Created Bash project: $name"
+          ;;
+        web)
+          _u7_exec mkdir -p "$name/css" "$name/js"
+          echo "<!DOCTYPE html><html><head><title>$name</title><link rel=\"stylesheet\" href=\"css/style.css\"></head><body><h1>$name</h1><script src=\"js/main.js\"></script></body></html>" > "$name/index.html"
+          touch "$name/css/style.css" "$name/js/main.js"
+          echo "Created Web project: $name"
+          ;;
+        *) echo "Usage: u7 mk template <python|node|bash|web> <project-name>" ; return 1 ;;
+      esac
+      ;;
+
     sequence)
       if [[ "$1" != "with" || "$2" != "prefix" ]]; then
         echo "Usage: u7 mk sequence with prefix <prefix> limit <N>"
@@ -557,6 +596,7 @@ Entities:
   link <source> to <destination>           Create symbolic link
   archive <output> from <files...>         Create archive from <files...> to <output>
   clone <repo> [to <directory>]            Git clone a repository
+  template <python|node|bash|web> <name>   Scaffold a project structure
   sequence with prefix <prefix> limit <N>  Generate numbered sequence with prefix <prefix> and limit <N>
 EOF
       ;;
