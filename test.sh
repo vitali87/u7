@@ -859,9 +859,34 @@ else
     ((FAILED++))
 fi
 
+# Test: mk template bash
+u7 mk template bash mybash >/dev/null 2>&1
+if [[ -f "mybash/main.sh" && -x "mybash/main.sh" ]]; then
+    echo -e "${GREEN}✓${NC} mk template bash works"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk template bash failed"
+    ((FAILED++))
+fi
+
+# Test: mk template web
+u7 mk template web myweb >/dev/null 2>&1
+if [[ -f "myweb/index.html" && -d "myweb/css" && -d "myweb/js" ]]; then
+    echo -e "${GREEN}✓${NC} mk template web works"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk template web failed"
+    ((FAILED++))
+fi
+
 # Test: mk template requires args
 result=$(u7 mk template 2>&1)
 assert_contains "mk template requires args" "Usage:" "$result"
+
+# Test: mk template rejects existing directory
+mkdir -p existing_dir
+result=$(u7 mk template python existing_dir 2>&1)
+assert_contains "mk template rejects existing dir" "already exists" "$result"
 
 # Cleanup
 cd /
