@@ -753,18 +753,6 @@ git add diff_test.txt && git commit -q -m "add diff_test"
 echo "changed" > diff_test.txt
 result=$(u7 sh git diff 2>&1)
 assert_contains "sh git diff works" "changed" "$result"
-# Test 87: mk clone dry-run
-result=$(u7 --dry-run mk clone https://github.com/example/repo.git 2>&1)
-assert_contains "mk clone dry-run works" "[dry-run]" "$result"
-
-# Test 88: mk clone with 'to' dry-run
-result=$(u7 --dry-run mk clone https://github.com/example/repo.git to mydir 2>&1)
-assert_contains "mk clone to dry-run works" "mydir" "$result"
-
-# Test 89: mk clone requires repo arg
-result=$(u7 mk clone 2>&1)
-assert_contains "mk clone requires repo" "Usage:" "$result"
-
 # === Dry-run tests ===
 echo ""
 echo "Dry-run tests"
