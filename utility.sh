@@ -350,6 +350,21 @@ _u7_show() {
       esac
       ;;
 
+    http)
+      local method="$1"
+      local url="$2"
+      local usage="Usage: u7 sh http <get|head|headers> <url>"
+      if [[ -z "$method" || -z "$url" ]]; then
+        echo "$usage"
+        return 1
+      fi
+      case "$method" in
+        get) curl -sL --max-time 30 -- "$url" ;;
+        head|headers) curl -sIL --max-time 30 -- "$url" ;;
+        *) echo "$usage" ; return 1 ;;
+      esac
+      ;;
+
     functions)
       declare -F | awk '{print $3}' | grep -v "^_"
       ;;
