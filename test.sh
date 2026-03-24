@@ -852,8 +852,7 @@ fi
 # Test: mk template node
 u7 mk template node mynode >/dev/null 2>&1
 if [[ -f "mynode/package.json" && -f "mynode/src/index.js" ]]; then
-    echo -e "${GREEN}✓${NC} mk template node works"
-    ((PASSED++))
+    assert_contains "mk template node package.json has name" "mynode" "$(cat mynode/package.json)"
 else
     echo -e "${RED}✗${NC} mk template node failed"
     ((FAILED++))

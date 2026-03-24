@@ -550,6 +550,7 @@ _u7_make() {
           echo "Created Python project: $name"
           ;;
         node)
+          _u7_require jq || return 1
           mkdir -p "$name/src" "$name/test"
           echo "# $name" > "$name/README.md"
           jq -n --arg name "$name" '{"name": $name, "version": "0.1.0", "main": "src/index.js"}' > "$name/package.json"
