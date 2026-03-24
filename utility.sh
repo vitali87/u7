@@ -394,9 +394,7 @@ Entities:
   files match <pattern> [in <path>]
   files by <modified|size> [limit N]
   diff <file1> to <file2>
-  cpu
-  memory
-  disk
+  cpu / memory / disk
   processes running [match <pattern>]
   processes by <cpu|memory> [limit N]
   port <number>
@@ -409,6 +407,15 @@ Entities:
   system
   definition of <word>
   functions
+
+Examples:
+  u7 sh ip external                  Show public IP
+  u7 sh csv data.csv limit 10       Preview first 10 rows
+  u7 sh files match "TODO" in ./src  Search for pattern
+  u7 sh processes by cpu limit 5     Top 5 CPU consumers
+  u7 sh git log 20                   Last 20 commits
+  u7 sh http get https://example.com  Fetch URL content
+  u7 sh docker all                    Overview of Docker resources
 EOF
       ;;
 
@@ -569,6 +576,12 @@ Entities:
   archive <output> from <files...>         Create archive from <files...> to <output>
   clone <repo> [to <directory>]            Git clone a repository
   sequence with prefix <prefix> limit <N>  Generate numbered sequence with prefix <prefix> and limit <N>
+
+Examples:
+  u7 mk dir myproject                       Create a directory
+  u7 mk password length 32                  Generate 32-char password
+  u7 mk archive backup.tar.gz from ./src    Archive a directory
+  u7 mk clone https://github.com/user/repo  Clone a repository
 EOF
       ;;
 
