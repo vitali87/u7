@@ -55,9 +55,6 @@
                         src = pkgs.lib.cleanSource ./.;
                         dontBuild = true;
 
-                        buildInputs = runtimeDeps;
-                        nativeBuildInputs = [];
-
                         installPhase = let
                           runtimePath = pkgs.lib.makeBinPath runtimeDeps;
                         in ''
@@ -78,6 +75,13 @@ echo "$out/share/u7/utility.sh"
 EOF
                             chmod +x $out/bin/u7-init
                         '';
+
+                        meta = with pkgs.lib; {
+                            description = "u7 – intuitive CLI for humans and AI";
+                            mainProgram = "u7";
+                            license = licenses.mit;
+                            platforms = platforms.all;
+                        };
                     };
 
                     devShells.default = pkgs.mkShell {
