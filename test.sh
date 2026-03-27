@@ -988,6 +988,54 @@ else
     ((PASSED++))
 fi
 
+# ===== sh log tests =====
+
+# Setup: create a temp log file
+LOG_FILE="$TEST_DIR/test.log"
+for i in $(seq 1 30); do
+    echo "line $i: log entry" >> "$LOG_FILE"
+done
+
+# Test: sh log default shows last 20 lines
+result=$(u7 sh log "$LOG_FILE" 2>&1)
+line_count=$(echo "$result" | wc -l | tr -d ' ')
+assert_equals "sh log default shows 20 lines" "20" "$line_count"
+assert_contains "sh log default starts at line 11" "line 11" "$result"
+
+# Test: sh log with limit
+result=$(u7 sh log "$LOG_FILE" limit 5 2>&1)
+line_count=$(echo "$result" | wc -l | tr -d ' ')
+assert_equals "sh log limit 5 shows 5 lines" "5" "$line_count"
+assert_contains "sh log limit 5 starts at line 26" "line 26" "$result"
+
+# Test: sh log with match
+echo "ERROR something broke" >> "$LOG_FILE"
+echo "INFO all good" >> "$LOG_FILE"
+echo "ERROR another failure" >> "$LOG_FILE"
+result=$(u7 sh log "$LOG_FILE" match ERROR 2>&1)
+line_count=$(echo "$result" | wc -l | tr -d ' ')
+assert_equals "sh log match finds 2 ERROR lines" "2" "$line_count"
+
+# Test: sh log missing file
+result=$(u7 sh log nonexistent.log 2>&1)
+assert_contains "sh log reports missing file" "File not found" "$result"
+
+# Test: sh log no arguments
+result=$(u7 sh log 2>&1)
+assert_contains "sh log no args shows usage" "Usage" "$result"
+
+# Test: sh log invalid limit
+result=$(u7 sh log "$LOG_FILE" limit abc 2>&1)
+assert_contains "sh log rejects non-integer limit" "limit must be a positive integer" "$result"
+
+# Test: sh log match without pattern
+result=$(u7 sh log "$LOG_FILE" match 2>&1)
+assert_contains "sh log match without pattern shows usage" "Usage" "$result"
+
+# Test: sh log unknown subcommand
+result=$(u7 sh log "$LOG_FILE" badarg 2>&1)
+assert_contains "sh log unknown subcommand shows usage" "Usage" "$result"
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
