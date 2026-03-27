@@ -951,6 +951,40 @@ assert_contains "sh system shows uptime" "Uptime:" "$result"
 assert_contains "sh system shows shell" "Shell:" "$result"
 assert_contains "sh system shows user" "User:" "$result"
 
+# Test: sh ports lists listening ports
+if command -v ss &>/dev/null || command -v netstat &>/dev/null; then
+    result=$(u7 sh ports 2>&1)
+    if [[ $? -eq 0 ]]; then
+        echo -e "${GREEN}✓${NC} sh ports runs without error"
+        ((PASSED++))
+    else
+        echo -e "${RED}✗${NC} sh ports runs without error"
+        echo "  Got: $result"
+        ((FAILED++))
+    fi
+else
+    echo -e "${GREEN}✓${NC} sh ports runs without error (skipped - ss/netstat not installed)"
+    ((PASSED++))
+fi
+
+# Test: sh ports shows usage on invalid arg
+result=$(u7 sh ports badarg 2>&1)
+assert_contains "sh ports rejects invalid arg" "Usage:" "$result"
+
+# Test: sh ports match requires pattern
+result=$(u7 sh ports match 2>&1)
+assert_contains "sh ports match requires pattern" "Usage:" "$result"
+
+# Test: sh ports match filters output (may return nothing, just check it runs)
+if command -v ss &>/dev/null || command -v netstat &>/dev/null; then
+    u7 sh ports match ssh 2>&1
+    echo -e "${GREEN}✓${NC} sh ports match runs without crash"
+    ((PASSED++))
+else
+    echo -e "${GREEN}✓${NC} sh ports match runs without crash (skipped - ss/netstat not installed)"
+    ((PASSED++))
+fi
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"

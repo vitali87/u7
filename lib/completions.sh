@@ -2,7 +2,7 @@ _u7_complete_entities() {
   local verb="$1" cur="$2"
   case "$verb" in
     show|sh)
-      COMPREPLY=($(compgen -W "ip csv json line ssl files diff cpu memory disk processes port usage network git env log http docker system definition functions --help" -- "$cur"))
+      COMPREPLY=($(compgen -W "ip csv json line ssl files diff cpu memory disk processes ports port usage network git env log http docker system definition functions --help" -- "$cur"))
       ;;
     make|mk)
       COMPREPLY=($(compgen -W "dir file password user copy link archive clone template sequence --help" -- "$cur"))
@@ -38,6 +38,7 @@ _u7_complete_args() {
         env) COMPREPLY=($(compgen -W "match" -- "$cur")) ;;
         http) COMPREPLY=($(compgen -W "get head headers" -- "$cur")) ;;
         docker) COMPREPLY=($(compgen -W "containers images volumes networks all" -- "$cur")) ;;
+        ports) COMPREPLY=($(compgen -W "match" -- "$cur")) ;;
         log) COMPREPLY=($(compgen -W "limit match follow" -- "$cur")) ; _filedir ;;
         *) _filedir ;;
       esac
