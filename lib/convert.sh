@@ -199,7 +199,7 @@ _u7_convert() {
           else
             local tmpfile
             tmpfile=$(mktemp "${output}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
-            jq -r '(.[0] | keys_unsorted) as $keys | $keys, map([.[ $keys[] ]])[] | @csv' < "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
+            jq -r 'if length == 0 then empty else (.[0] | keys_unsorted) as $keys | $keys, map([.[ $keys[] ]])[] | @csv end' < "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
           fi
           ;;
         *) echo "Unsupported conversion: json to $to_fmt" ; return 1 ;;
