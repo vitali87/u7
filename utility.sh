@@ -883,7 +883,7 @@ _u7_convert() {
       case "$to_fmt" in
         yaml|yml)
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
-            echo "[dry-run] yq -P < $input > $output"
+            echo "[dry-run] yq -o=json < \"$input\" > \"$output\""
           else
             yq -P < "$input" > "$output"
           fi

@@ -207,10 +207,11 @@ assert_equals "Set file permissions" "644" "$perms"
 
 # Test 17: Convert JSON to YAML
 echo '{"key": "value"}' > test.json
-u7 cv json test.json to yaml yield test.yaml >/dev/null 2>&1
+u7 cv json test.json to yaml yield test.yaml >/dev/null
 if [[ -f "test.yaml" ]]; then
     result=$(cat test.yaml)
-    assert_contains "JSON to YAML conversion" "key: value" "$result"
+    assert_contains "JSON to YAML conversion has key" "key" "$result"
+    assert_contains "JSON to YAML conversion has value" "value" "$result"
 else
     echo -e "${RED}✗${NC} JSON to YAML conversion (file not created)"
     ((FAILED++))
