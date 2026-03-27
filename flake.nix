@@ -9,45 +9,83 @@
     outputs = { self, nixpkgs, flake-utils}:
         flake-utils.lib.eachDefaultSystem (
             system:
-                let 
+                let
                     pkgs = nixpkgs.legacyPackages.${system};
-                in 
+
+                    runtimeDeps = [
+                        pkgs.curl
+                        pkgs.jq
+                        pkgs.ripgrep
+                        pkgs.fd
+                        pkgs.qsv
+
+                        pkgs.coreutils
+                        pkgs.gnused
+                        pkgs.gawk
+                        pkgs.findutils
+                        pkgs.gnugrep
+
+                        pkgs.bc
+                        pkgs.ffmpeg
+                        pkgs.imagemagick
+                        pkgs.gnutar
+                        pkgs.gzip
+                        pkgs.bzip2
+                        pkgs.xz
+                        pkgs.p7zip
+                        pkgs.unzip
+
+                        pkgs.rsync
+
+                        pkgs.bash
+
+                        pkgs.openssl
+                        pkgs.yq-go
+                        pkgs.git
+
+                        pkgs.libwebp
+                        pkgs.gifsicle
+                        pkgs.rename
+                    ];
+                in
                 {
+                    packages.default = pkgs.stdenv.mkDerivation {
+                        pname = "u7";
+                        version = "0.1.0";
+                        src = pkgs.lib.cleanSource ./.;
+                        dontBuild = true;
+
+                        installPhase = let
+                          runtimePath = pkgs.lib.makeBinPath runtimeDeps;
+                        in ''
+                            mkdir -p $out/share/u7 $out/bin
+                            cp utility.sh $out/share/u7/utility.sh
+
+                            cat > $out/bin/u7 <<EOF
+#!${pkgs.bash}/bin/bash
+export PATH="${runtimePath}:\$PATH"
+source "$out/share/u7/utility.sh"
+u7 "\$@"
+EOF
+                            chmod +x $out/bin/u7
+
+                            cat > $out/bin/u7-init <<EOF
+#!${pkgs.bash}/bin/bash
+echo "$out/share/u7/utility.sh"
+EOF
+                            chmod +x $out/bin/u7-init
+                        '';
+
+                        meta = with pkgs.lib; {
+                            description = "u7 – intuitive CLI for humans and AI";
+                            mainProgram = "u7";
+                            license = licenses.mit;
+                            platforms = platforms.all;
+                        };
+                    };
+
                     devShells.default = pkgs.mkShell {
-                        buildInputs = [
-                            pkgs.curl
-                            pkgs.jq
-                            pkgs.ripgrep
-                            pkgs.fd
-                            pkgs.qsv
-
-                            pkgs.coreutils
-                            pkgs.gnused
-                            pkgs.gawk
-                            pkgs.findutils
-                            pkgs.gnugrep
-
-                            pkgs.bc
-                            pkgs.ffmpeg
-                            pkgs.imagemagick
-                            pkgs.gnutar
-                            pkgs.gzip
-                            pkgs.bzip2
-                            pkgs.xz
-                            pkgs.p7zip
-                            pkgs.unzip
-
-                            pkgs.rsync
-
-                            pkgs.openssl
-                            pkgs.yq-go
-                            pkgs.git
-                            pkgs.bash-completion
-
-                            pkgs.libwebp
-                            pkgs.gifsicle
-                            pkgs.rename
-                        ];
+                        buildInputs = runtimeDeps ++ [ pkgs.bash-completion ];
 
                         shellHook = ''
                             source ${pkgs.bash-completion}/etc/profile.d/bash_completion.sh
