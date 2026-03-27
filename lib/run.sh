@@ -102,17 +102,19 @@ _u7_run() {
       fi
       echo "Watching $file for changes... (Ctrl+C to stop)"
       if command -v inotifywait &>/dev/null; then
-        while true; do
-          inotifywait -qq -e modify "$file"
+        while inotifywait -qq -e modify "$file"; do
           eval "$cmd"
         done
       else
-        local last_mod
+        local last_mod cur_mod
         last_mod=$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file" 2>/dev/null)
         while true; do
           sleep 1
-          local cur_mod
           cur_mod=$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file" 2>/dev/null)
+          if [[ -z "$cur_mod" ]]; then
+            echo "File no longer exists, stopping watch." >&2
+            break
+          fi
           if [[ "$cur_mod" != "$last_mod" ]]; then
             last_mod="$cur_mod"
             eval "$cmd"
