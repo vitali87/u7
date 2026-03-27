@@ -1022,6 +1022,30 @@ else
     ((PASSED++))
 fi
 
+# ===== rn watch tests =====
+
+# Test: rn watch usage (missing args)
+result=$(u7 rn watch 2>&1)
+assert_contains "rn watch shows usage on missing args" "Usage" "$result"
+
+# Test: rn watch usage (missing run keyword)
+touch watch_target.txt
+result=$(u7 rn watch watch_target.txt 2>&1)
+assert_contains "rn watch shows usage when run keyword missing" "Usage" "$result"
+
+# Test: rn watch file not found
+result=$(u7 rn watch nonexistent_file.txt run echo hi 2>&1)
+assert_contains "rn watch reports missing file" "not found" "$result"
+
+# Test: rn watch dry-run
+touch watch_target.txt
+result=$(u7 -n rn watch watch_target.txt run echo hello 2>&1)
+assert_equals "rn watch dry-run output" "[dry-run] watch watch_target.txt and run echo hello on change" "$result"
+
+# Test: rn watch help text includes watch
+result=$(u7 rn --help 2>&1)
+assert_contains "rn help mentions watch" "watch" "$result"
+
 # ===== sh log tests =====
 
 # Setup: create a temp log file
