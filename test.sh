@@ -838,6 +838,58 @@ else
     ((PASSED++))
 fi
 
+# Test: mk template python
+cd "$TEST_DIR"
+u7 mk template python myapp >/dev/null 2>&1
+if [[ -f "myapp/src/main.py" && -f "myapp/README.md" && -f "myapp/src/__init__.py" && -f "myapp/tests/__init__.py" ]]; then
+    echo -e "${GREEN}✓${NC} mk template python works"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk template python failed"
+    ((FAILED++))
+fi
+
+# Test: mk template node
+u7 mk template node mynode >/dev/null 2>&1
+if [[ -f "mynode/package.json" && -f "mynode/src/index.js" ]]; then
+    assert_contains "mk template node package.json has name" "mynode" "$(cat mynode/package.json)"
+else
+    echo -e "${RED}✗${NC} mk template node failed"
+    ((FAILED++))
+fi
+
+# Test: mk template bash
+u7 mk template bash mybash >/dev/null 2>&1
+if [[ -f "mybash/main.sh" && -x "mybash/main.sh" ]]; then
+    echo -e "${GREEN}✓${NC} mk template bash works"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk template bash failed"
+    ((FAILED++))
+fi
+
+# Test: mk template web
+u7 mk template web myweb >/dev/null 2>&1
+if [[ -f "myweb/index.html" && -d "myweb/css" && -d "myweb/js" ]]; then
+    echo -e "${GREEN}✓${NC} mk template web works"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk template web failed"
+    ((FAILED++))
+fi
+
+# Test: mk template requires args
+result=$(u7 mk template 2>&1)
+assert_contains "mk template requires args" "Usage:" "$result"
+
+# Test: mk template rejects existing directory
+mkdir -p existingdir
+result=$(u7 mk template python existingdir 2>&1)
+assert_contains "mk template rejects existing dir" "already exists" "$result"
+
+# Test: mk template rejects special characters in name
+result=$(u7 mk template python "my project" 2>&1)
+assert_contains "mk template rejects special chars" "alphanumerics" "$result"
 # Test 92: sh system
 result=$(u7 sh system 2>&1)
 assert_contains "sh system shows hostname" "Hostname:" "$result"
