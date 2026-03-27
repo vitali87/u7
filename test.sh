@@ -905,6 +905,10 @@ assert_contains "sh system shows user" "User:" "$result"
 cd /
 rm -rf "$TEST_DIR"
 
+# Set up temp dir for YAML tests
+TEST_DIR=$(mktemp -d)
+cd "$TEST_DIR"
+
 # Test: Convert YAML to JSON
 echo -e "key: value\nlist:\n  - one\n  - two" > test.yaml
 if command -v yq &>/dev/null; then
