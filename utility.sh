@@ -4,9 +4,9 @@ _U7_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC1090
 for _u7_mod in core show make drop convert move set run completions; do
-  source "$_U7_DIR/lib/${_u7_mod}.sh" || { echo "u7: failed to load lib/${_u7_mod}.sh" >&2; return 1; }
+  source "$_U7_DIR/lib/${_u7_mod}.sh" || { echo "u7: failed to load lib/${_u7_mod}.sh" >&2; unset _u7_mod _U7_DIR; return 1; }
 done
-unset _u7_mod
+unset _u7_mod _U7_DIR
 
 u7() {
   _U7_DRY_RUN=0

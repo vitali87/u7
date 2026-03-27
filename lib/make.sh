@@ -12,10 +12,11 @@ _u7_make() {
       ;;
 
     password)
+      local length
       if [[ "$1" == "length" ]]; then
-        local length="${2:-16}"
+        length="${2:-16}"
       else
-        local length="${1:-16}"
+        length="${1:-16}"
       fi
       LC_ALL=C tr -dc 'A-Za-z0-9!@#$%^&*' < /dev/urandom | head -c "$length"
       echo

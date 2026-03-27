@@ -31,7 +31,8 @@ _u7_convert() {
         return 1
       fi
 
-      local lowercase=$(echo "$archive" | tr '[:upper:]' '[:lower:]')
+      local lowercase
+      lowercase=$(echo "$archive" | tr '[:upper:]' '[:lower:]')
 
       case "$lowercase" in
         *.tar.xz|*.tar.gz|*.tar.bz2|*.tar|*.tgz|*.tbz|*.tbz2|*.txz|*.tb2)
@@ -39,7 +40,8 @@ _u7_convert() {
         *.bz|*.bz2)
           _u7_exec bzip2 -d -k "$archive" ;;
         *.gz)
-          local outfile=$(_u7_archive_output_file "$archive" "$dest")
+          local outfile
+          outfile=$(_u7_archive_output_file "$archive" "$dest")
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
             echo "[dry-run] gunzip -c $archive > $outfile"
           else
@@ -55,7 +57,8 @@ _u7_convert() {
         *.tar.lzma)
           _u7_exec tar -xf "$archive" -C "$dest" --lzma ;;
         *.xz)
-          local outfile=$(_u7_archive_output_file "$archive" "$dest")
+          local outfile
+          outfile=$(_u7_archive_output_file "$archive" "$dest")
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
             echo "[dry-run] unxz -c $archive > $outfile"
           else
@@ -63,7 +66,8 @@ _u7_convert() {
           fi
           ;;
         *.lzma)
-          local outfile=$(_u7_archive_output_file "$archive" "$dest")
+          local outfile
+          outfile=$(_u7_archive_output_file "$archive" "$dest")
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
             echo "[dry-run] unlzma -c $archive > $outfile"
           else

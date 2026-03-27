@@ -42,7 +42,7 @@ _u7_show() {
       if [[ "$2" == "limit" && -n "$3" ]]; then
         limit="$3"
       fi
-      jq ".[:$limit]" "$file"
+      jq "if type == \"array\" then .[:$limit] else . end" "$file"
       ;;
 
     line)
