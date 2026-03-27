@@ -178,12 +178,50 @@ _u7_convert() {
       case "$to_fmt" in
         yaml|yml)
           if [[ "$_U7_DRY_RUN" == "1" ]]; then
-            echo "[dry-run] yq -P < $input > $output"
+            echo "[dry-run] yq -P < \"$input\" > \"$output\""
           else
             yq -P < "$input" > "$output"
           fi
           ;;
         *) echo "Unsupported conversion: json to $to_fmt" ; return 1 ;;
+      esac
+      ;;
+
+    yaml)
+      local input="$1"
+      if [[ "$2" != "to" ]]; then
+        echo "Usage: u7 cv yaml <input> to json [yield <output>]"
+        return 1
+      fi
+      local to_fmt="$3"
+      local output="${input%.*}.$to_fmt"
+      if [[ "$4" == "yield" ]]; then
+        if [[ -z "$5" ]]; then
+          echo "Usage: u7 cv yaml <input> to json [yield <output>]"
+          return 1
+        fi
+        output="$5"
+      fi
+
+      if [[ ! -f "$input" ]]; then
+        echo "File not found: $input"
+        return 1
+      fi
+
+      # Requires yq-go (Mike Farah's yq), provided by Nix
+      _u7_require yq || return 1
+
+      case "$to_fmt" in
+        json)
+          if [[ "$_U7_DRY_RUN" == "1" ]]; then
+            echo "[dry-run] yq -o=json < \"$input\" > \"$output\""
+          else
+            local tmpfile
+            tmpfile=$(mktemp "${output}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
+            yq -o=json < "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
+          fi
+          ;;
+        *) echo "Unsupported conversion: yaml to $to_fmt" ; return 1 ;;
       esac
       ;;
 
@@ -279,6 +317,7 @@ Entities:
   image <input> to <format> [yield <output>]   Convert image (png/jpg/webp/gif/etc)
   video <input> to <format> [yield <output>]   Convert video
   json <input> to yaml [yield <output>]  Convert JSON to YAML
+  yaml <input> to json [yield <output>]  Convert YAML to JSON
   csv <input> to json [yield <output>]   Convert CSV to JSON
   case upper to lower on <files...>      Rename to lowercase
   case lower to upper on <files...>      Rename to uppercase

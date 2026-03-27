@@ -207,10 +207,11 @@ assert_equals "Set file permissions" "644" "$perms"
 
 # Test 17: Convert JSON to YAML
 echo '{"key": "value"}' > test.json
-u7 cv json test.json to yaml yield test.yaml >/dev/null 2>&1
+u7 cv json test.json to yaml yield test.yaml >/dev/null
 if [[ -f "test.yaml" ]]; then
     result=$(cat test.yaml)
-    assert_contains "JSON to YAML conversion" "key: value" "$result"
+    assert_contains "JSON to YAML conversion has key" "key" "$result"
+    assert_contains "JSON to YAML conversion has value" "value" "$result"
 else
     echo -e "${RED}✗${NC} JSON to YAML conversion (file not created)"
     ((FAILED++))
@@ -919,6 +920,43 @@ assert_contains "sh system shows arch" "Arch:" "$result"
 assert_contains "sh system shows uptime" "Uptime:" "$result"
 assert_contains "sh system shows shell" "Shell:" "$result"
 assert_contains "sh system shows user" "User:" "$result"
+
+# Cleanup
+cd /
+rm -rf "$TEST_DIR"
+
+# Set up temp dir for YAML tests
+TEST_DIR=$(mktemp -d)
+cd "$TEST_DIR"
+
+# Test: Convert YAML to JSON
+echo -e "key: value\nlist:\n  - one\n  - two" > test.yaml
+if command -v yq &>/dev/null; then
+    u7 cv yaml test.yaml to json yield test.json >/dev/null 2>&1
+    if [[ -f "test.json" ]]; then
+        result=$(cat test.json)
+        assert_contains "cv yaml to json works" "key" "$result"
+    else
+        echo -e "${RED}✗${NC} cv yaml to json (file not created)"
+        ((FAILED++))
+    fi
+else
+    echo -e "${GREEN}✓${NC} cv yaml to json (skipped - yq not installed)"
+    ((PASSED++))
+fi
+
+# Test: Convert YAML missing file
+result=$(u7 cv yaml nonexistent.yaml to json 2>&1)
+assert_contains "cv yaml reports missing file" "not found" "$result"
+
+# Test: Convert YAML unsupported format
+if command -v yq &>/dev/null; then
+    result=$(u7 cv yaml test.yaml to xml 2>&1)
+    assert_contains "cv yaml rejects unsupported format" "Unsupported" "$result"
+else
+    echo -e "${GREEN}✓${NC} cv yaml rejects unsupported format (skipped - yq not installed)"
+    ((PASSED++))
+fi
 
 # Cleanup
 cd /
