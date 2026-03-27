@@ -20,7 +20,7 @@ _u7_complete_entities() {
       COMPREPLY=($(compgen -W "text slashes tabs perms owner --help" -- "$cur"))
       ;;
     run|rn)
-      COMPREPLY=($(compgen -W "job script check terminal --help" -- "$cur"))
+      COMPREPLY=($(compgen -W "job script check terminal watch --help" -- "$cur"))
       ;;
   esac
 }
@@ -77,6 +77,7 @@ _u7_complete_args() {
       case "$entity" in
         check) COMPREPLY=($(compgen -W "syntax" -- "$cur")) ; _filedir ;;
         script) _filedir ;;
+        watch) _filedir ;;
       esac
       ;;
   esac
