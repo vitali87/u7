@@ -135,6 +135,70 @@ _u7_drop() {
       _u7_exec sudo deluser "$1"
       ;;
 
+    docker)
+      case "$1" in
+        container|image|volume)
+          if [[ "$_U7_DRY_RUN" != "1" ]]; then
+            if ! command -v docker &>/dev/null; then
+              echo "Error: docker is not installed or not in PATH"
+              return 1
+            fi
+          fi
+          ;;
+        prune)
+          if [[ "$_U7_DRY_RUN" == "1" ]]; then
+            echo "[dry-run] docker system prune -af"
+            return 0
+          fi
+          if ! command -v docker &>/dev/null; then
+            echo "Error: docker is not installed or not in PATH"
+            return 1
+          fi
+          ;;
+        "")
+          echo "Usage: u7 dr docker <container|image|volume|prune> [id|name]"
+          return 0
+          ;;
+        *)
+          echo "Usage: u7 dr docker <container|image|volume|prune> [id|name]"
+          return 1
+          ;;
+      esac
+      case "$1" in
+        container)
+          if [[ -z "$2" ]]; then
+            echo "Usage: u7 dr docker container <id|name>"
+            return 1
+          fi
+          _u7_exec docker rm -f "$2"
+          ;;
+        image)
+          if [[ -z "$2" ]]; then
+            echo "Usage: u7 dr docker image <id|name>"
+            return 1
+          fi
+          _u7_exec docker rmi "$2"
+          ;;
+        volume)
+          if [[ -z "$2" ]]; then
+            echo "Usage: u7 dr docker volume <name>"
+            return 1
+          fi
+          _u7_exec docker volume rm "$2"
+          ;;
+        prune)
+          echo "This will remove all stopped containers, unused images, and build cache. Continue? (y/n)"
+          read -r confirm < /dev/tty
+          if [[ "${confirm,,}" == "y" ]]; then
+            _u7_exec docker system prune -af
+          else
+            echo "Aborted."
+            return 1
+          fi
+          ;;
+      esac
+      ;;
+
     --help|-h)
       cat << 'EOF'
 u7 dr (drop) - Delete/Kill
@@ -152,6 +216,7 @@ Entities:
   duplicates in|from <file>     Remove duplicate lines
   process <pid>                 Kill process
   user <username>               Delete system user
+  docker <container|image|volume|prune> [id|name]  Manage Docker resources
 EOF
       ;;
 

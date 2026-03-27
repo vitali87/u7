@@ -890,6 +890,26 @@ assert_contains "mk template rejects existing dir" "already exists" "$result"
 # Test: mk template rejects special characters in name
 result=$(u7 mk template python "my project" 2>&1)
 assert_contains "mk template rejects special chars" "alphanumerics" "$result"
+# Test: dr docker without subcommand shows usage
+result=$(u7 dr docker 2>&1)
+assert_contains "dr docker shows usage" "Usage:" "$result"
+
+# Test: dr docker prune dry-run
+result=$(u7 --dry-run dr docker prune 2>&1)
+assert_contains "dr docker prune dry-run works" "[dry-run]" "$result"
+
+# Test: dr docker container dry-run
+result=$(u7 --dry-run dr docker container test123 2>&1)
+assert_contains "dr docker container dry-run works" "[dry-run]" "$result"
+
+# Test: dr docker image dry-run
+result=$(u7 --dry-run dr docker image test123 2>&1)
+assert_contains "dr docker image dry-run works" "[dry-run]" "$result"
+
+# Test: dr docker volume dry-run
+result=$(u7 --dry-run dr docker volume test123 2>&1)
+assert_contains "dr docker volume dry-run works" "[dry-run]" "$result"
+
 # Test 92: sh system
 result=$(u7 sh system 2>&1)
 assert_contains "sh system shows hostname" "Hostname:" "$result"
