@@ -544,6 +544,60 @@ _u7_make() {
       fi
       ;;
 
+    template)
+      local tmpl="$1"
+      local name="$2"
+      if [[ -z "$tmpl" || -z "$name" ]]; then
+        echo "Usage: u7 mk template <python|node|bash|web> <project-name>"
+        return 1
+      fi
+      if [[ ! "$name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "Error: project name must contain only alphanumerics, hyphens, and underscores"
+        return 1
+      fi
+      if [[ -d "$name" ]]; then
+        echo "Error: directory '$name' already exists"
+        return 1
+      fi
+      if [[ "$_U7_DRY_RUN" == "1" ]]; then
+        echo "[dry-run] Create $tmpl project: $name"
+        return 0
+      fi
+      case "$tmpl" in
+        python)
+          mkdir -p "$name/src" "$name/tests"
+          echo "# $name" > "$name/README.md"
+          echo "#!/usr/bin/env python3" > "$name/src/main.py"
+          touch "$name/src/__init__.py" "$name/tests/__init__.py"
+          echo "Created Python project: $name"
+          ;;
+        node)
+          _u7_require jq || return 1
+          mkdir -p "$name/src" "$name/test"
+          echo "# $name" > "$name/README.md"
+          jq -n --arg name "$name" '{"name": $name, "version": "0.1.0", "main": "src/index.js"}' > "$name/package.json"
+          echo "// $name" > "$name/src/index.js"
+          echo "Created Node project: $name"
+          ;;
+        bash)
+          mkdir -p "$name"
+          echo "# $name" > "$name/README.md"
+          printf '#!/usr/bin/env bash\nset -euo pipefail\n\necho '\''Hello from %s'\''\n' "$name" > "$name/main.sh"
+          chmod +x "$name/main.sh"
+          echo "Created Bash project: $name"
+          ;;
+        web)
+          mkdir -p "$name/css" "$name/js"
+          local escaped_name="${name//</&lt;}"
+          escaped_name="${escaped_name//>/&gt;}"
+          echo "<!DOCTYPE html><html><head><title>$escaped_name</title><link rel=\"stylesheet\" href=\"css/style.css\"></head><body><h1>$escaped_name</h1><script src=\"js/main.js\"></script></body></html>" > "$name/index.html"
+          touch "$name/css/style.css" "$name/js/main.js"
+          echo "Created Web project: $name"
+          ;;
+        *) echo "Unknown template: $tmpl. Available: python, node, bash, web" ; return 1 ;;
+      esac
+      ;;
+
     sequence)
       if [[ "$1" != "with" || "$2" != "prefix" ]]; then
         echo "Usage: u7 mk sequence with prefix <prefix> limit <N>"
@@ -575,6 +629,7 @@ Entities:
   link <source> to <destination>           Create symbolic link
   archive <output> from <files...>         Create archive from <files...> to <output>
   clone <repo> [to <directory>]            Git clone a repository
+  template <python|node|bash|web> <name>   Scaffold a project structure
   sequence with prefix <prefix> limit <N>  Generate numbered sequence with prefix <prefix> and limit <N>
 
 Examples:
