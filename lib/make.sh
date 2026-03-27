@@ -170,6 +170,36 @@ _u7_make() {
       esac
       ;;
 
+    env)
+      local template=".env.example"
+      local output=".env"
+
+      if [[ "$1" == "from" ]]; then
+        if [[ -z "$2" ]]; then
+          echo "Usage: u7 mk env from <template> [to <output>]"
+          return 1
+        fi
+        template="$2"
+        if [[ "$3" == "to" ]]; then
+          if [[ -z "$4" ]]; then
+            echo "Usage: u7 mk env from <template> to <output>"
+            return 1
+          fi
+          output="$4"
+        fi
+      fi
+
+      if [[ ! -f "$template" ]]; then
+        echo "Error: template '$template' not found"
+        return 1
+      fi
+      if [[ -f "$output" ]]; then
+        echo "Error: '$output' already exists"
+        return 1
+      fi
+      _u7_exec cp "$template" "$output"
+      ;;
+
     sequence)
       if [[ "$1" != "with" || "$2" != "prefix" ]]; then
         echo "Usage: u7 mk sequence with prefix <prefix> limit <N>"
@@ -202,6 +232,7 @@ Entities:
   archive <output> from <files...>         Create archive from <files...> to <output>
   clone <repo> [to <directory>]            Git clone a repository
   template <python|node|bash|web> <name>   Scaffold a project structure
+  env [from <template>] [to <output>]       Generate .env from .env.example or a custom template
   sequence with prefix <prefix> limit <N>  Generate numbered sequence with prefix <prefix> and limit <N>
 EOF
       ;;

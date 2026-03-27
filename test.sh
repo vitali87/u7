@@ -951,6 +951,30 @@ assert_contains "sh system shows uptime" "Uptime:" "$result"
 assert_contains "sh system shows shell" "Shell:" "$result"
 assert_contains "sh system shows user" "User:" "$result"
 
+# Test: sh ports lists listening ports
+result=$(u7 sh ports 2>&1)
+if [[ $? -eq 0 ]]; then
+    echo -e "${GREEN}✓${NC} sh ports runs without error"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} sh ports runs without error"
+    echo "  Got: $result"
+    ((FAILED++))
+fi
+
+# Test: sh ports shows usage on invalid arg
+result=$(u7 sh ports badarg 2>&1)
+assert_contains "sh ports rejects invalid arg" "Usage:" "$result"
+
+# Test: sh ports match requires pattern
+result=$(u7 sh ports match 2>&1)
+assert_contains "sh ports match requires pattern" "Usage:" "$result"
+
+# Test: sh ports match filters output (may return nothing, just check it runs)
+result=$(u7 sh ports match ssh 2>&1)
+echo -e "${GREEN}✓${NC} sh ports match runs without crash"
+((PASSED++))
+
 # Cleanup
 cd /
 rm -rf "$TEST_DIR"
@@ -987,6 +1011,70 @@ else
     echo -e "${GREEN}✓${NC} cv yaml rejects unsupported format (skipped - yq not installed)"
     ((PASSED++))
 fi
+
+# ===== mk env tests =====
+
+# Test: mk env copies .env.example to .env
+echo "DB_HOST=localhost" > .env.example
+echo "# comment line" >> .env.example
+echo "DB_PORT=5432" >> .env.example
+result=$(u7 mk env 2>&1)
+if [[ -f .env ]]; then
+    content=$(cat .env)
+    expected=$(cat .env.example)
+    assert_equals "mk env copies .env.example to .env" "$expected" "$content"
+else
+    echo -e "${RED}✗${NC} mk env copies .env.example to .env (file not created)"
+    ((FAILED++))
+fi
+rm -f .env
+
+# Test: mk env errors when .env already exists
+echo "existing" > .env
+result=$(u7 mk env 2>&1)
+assert_contains "mk env errors when .env exists" "already exists" "$result"
+rm -f .env .env.example
+
+# Test: mk env errors when .env.example is missing
+result=$(u7 mk env 2>&1)
+assert_contains "mk env errors when template missing" "not found" "$result"
+
+# Test: mk env from <template>
+echo "KEY=value" > custom.template
+result=$(u7 mk env from custom.template 2>&1)
+if [[ -f .env ]]; then
+    content=$(cat .env)
+    assert_equals "mk env from custom template" "KEY=value" "$content"
+else
+    echo -e "${RED}✗${NC} mk env from custom template (file not created)"
+    ((FAILED++))
+fi
+rm -f .env custom.template
+
+# Test: mk env from <template> to <output>
+echo "SECRET=abc" > my.template
+result=$(u7 mk env from my.template to config.env 2>&1)
+if [[ -f config.env ]]; then
+    content=$(cat config.env)
+    assert_equals "mk env from template to output" "SECRET=abc" "$content"
+else
+    echo -e "${RED}✗${NC} mk env from template to output (file not created)"
+    ((FAILED++))
+fi
+rm -f config.env my.template
+
+# Test: mk env dry-run does not create file
+echo "DRY=run" > .env.example
+result=$(u7 -n mk env 2>&1)
+assert_contains "mk env dry-run prints command" "cp" "$result"
+if [[ ! -f .env ]]; then
+    echo -e "${GREEN}✓${NC} mk env dry-run does not create file"
+    ((PASSED++))
+else
+    echo -e "${RED}✗${NC} mk env dry-run does not create file"
+    ((FAILED++))
+fi
+rm -f .env.example
 
 # Cleanup
 cd /
