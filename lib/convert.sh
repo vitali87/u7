@@ -166,13 +166,22 @@ _u7_convert() {
     json)
       local input="$1"
       if [[ "$2" != "to" ]]; then
-        echo "Usage: u7 cv json <input> to yaml [yield <output>]"
+        echo "Usage: u7 cv json <input> to <yaml|csv> [yield <output>]"
         return 1
       fi
       local to_fmt="$3"
       local output="${input%.*}.$to_fmt"
       if [[ "$4" == "yield" ]]; then
+        if [[ -z "$5" ]]; then
+          echo "Usage: u7 cv json <input> to <yaml|csv> [yield <output>]"
+          return 1
+        fi
         output="$5"
+      fi
+
+      if [[ ! -f "$input" ]]; then
+        echo "File not found: $input"
+        return 1
       fi
 
       case "$to_fmt" in
@@ -181,6 +190,16 @@ _u7_convert() {
             echo "[dry-run] yq -P < \"$input\" > \"$output\""
           else
             yq -P < "$input" > "$output"
+          fi
+          ;;
+        csv)
+          _u7_require jq || return 1
+          if [[ "$_U7_DRY_RUN" == "1" ]]; then
+            echo "[dry-run] jq -r '...' < \"$input\" > \"$output\""
+          else
+            local tmpfile
+            tmpfile=$(mktemp "${output}.XXXXXX") || { echo "Error: Failed to create temp file"; return 1; }
+            jq -r '(.[0] | keys_unsorted) as $keys | $keys, map([.[ $keys[] ]])[] | @csv' < "$input" > "$tmpfile" && mv "$tmpfile" "$output" || { rm -f "$tmpfile"; return 1; }
           fi
           ;;
         *) echo "Unsupported conversion: json to $to_fmt" ; return 1 ;;
@@ -316,7 +335,7 @@ Entities:
   files <files...> to archive yield <output>   Create archive
   image <input> to <format> [yield <output>]   Convert image (png/jpg/webp/gif/etc)
   video <input> to <format> [yield <output>]   Convert video
-  json <input> to yaml [yield <output>]  Convert JSON to YAML
+  json <input> to <yaml|csv> [yield <output>]  Convert JSON to YAML or CSV
   yaml <input> to json [yield <output>]  Convert YAML to JSON
   csv <input> to json [yield <output>]   Convert CSV to JSON
   case upper to lower on <files...>      Rename to lowercase
