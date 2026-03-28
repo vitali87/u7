@@ -148,6 +148,30 @@ _u7_show() {
       esac
       ;;
 
+    ports)
+      case "$1" in
+        match)
+          if [[ -z "$2" ]]; then
+            echo "Usage: u7 sh ports match <pattern>"
+            return 1
+          fi
+          if command -v ss &>/dev/null; then
+            ss -tlnp | grep -i "$2"
+          else
+            netstat -tlnp 2>/dev/null | grep -i "$2"
+          fi
+          ;;
+        "")
+          if command -v ss &>/dev/null; then
+            ss -tlnp
+          else
+            netstat -tlnp 2>/dev/null
+          fi
+          ;;
+        *) echo "Usage: u7 sh ports [match <pattern>]" ; return 1 ;;
+      esac
+      ;;
+
     port)
       lsof -i tcp:"$1"
       ;;
@@ -248,6 +272,45 @@ _u7_show() {
       esac
       ;;
 
+    log)
+      local file="$1"
+      if [[ -z "$file" ]]; then
+        echo "Usage: u7 sh log <file> [limit N|match <pattern>|follow]"
+        return 1
+      fi
+      if [[ ! -f "$file" ]]; then
+        echo "File not found: $file"
+        return 1
+      fi
+      case "$2" in
+        limit)
+          local n="${3:-20}"
+          if ! [[ "$n" =~ ^[0-9]+$ ]]; then
+            echo "Error: limit must be a positive integer, got '$n'"
+            return 1
+          fi
+          tail -n "$n" "$file"
+          ;;
+        match)
+          if [[ -z "$3" ]]; then
+            echo "Usage: u7 sh log <file> match <pattern>"
+            return 1
+          fi
+          grep -- "$3" "$file"
+          ;;
+        follow)
+          tail -f "$file"
+          ;;
+        "")
+          tail -n 20 "$file"
+          ;;
+        *)
+          echo "Usage: u7 sh log <file> [limit N|match <pattern>|follow]"
+          return 1
+          ;;
+      esac
+      ;;
+
     http)
       local method="$1"
       local url="$2"
@@ -302,6 +365,7 @@ Entities:
   network
   git <authors|branches|tags|log [N]|status|diff|remotes>
   env [match <pattern>]
+  log <file> [limit N|match <pattern>|follow]
   http <get|head|headers> <url>
   docker <containers|images|volumes|networks|all>
   definition of <word>
