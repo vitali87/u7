@@ -80,6 +80,49 @@ _u7_run() {
       fi
       ;;
 
+    watch)
+      local file="$1"
+      if [[ -z "$file" || "$2" != "run" ]]; then
+        echo "Usage: u7 rn watch <file> run <command>"
+        return 1
+      fi
+      if [[ ! -e "$file" ]]; then
+        echo "File not found: $file"
+        return 1
+      fi
+      shift 2
+      local cmd="$*"
+      if [[ -z "$cmd" ]]; then
+        echo "Usage: u7 rn watch <file> run <command>"
+        return 1
+      fi
+      if [[ "$_U7_DRY_RUN" == "1" ]]; then
+        echo "[dry-run] watch $file and run $cmd on change"
+        return 0
+      fi
+      echo "Watching $file for changes... (Ctrl+C to stop)"
+      if command -v inotifywait &>/dev/null; then
+        while inotifywait -qq -e modify "$file"; do
+          eval "$cmd"
+        done
+      else
+        local last_mod cur_mod
+        last_mod=$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file" 2>/dev/null)
+        while true; do
+          sleep 1
+          cur_mod=$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file" 2>/dev/null)
+          if [[ -z "$cur_mod" ]]; then
+            echo "File no longer exists, stopping watch." >&2
+            break
+          fi
+          if [[ "$cur_mod" != "$last_mod" ]]; then
+            last_mod="$cur_mod"
+            eval "$cmd"
+          fi
+        done
+      fi
+      ;;
+
     --help|-h)
       cat << 'EOF'
 u7 rn (run) - Execute/Control
@@ -89,6 +132,7 @@ Usage: u7 rn <entity> [arguments]
 Entities:
   job <cmd> in <time>                    Schedule command (5s, 10m, 1h)
   script <path>                          Execute shell script
+  watch <file> run <command>             Watch file and run command on change
   <command> in background                Run command in background
   <command> with priority <nice>         Run with CPU priority
   check syntax in file <path>            Check single file syntax
