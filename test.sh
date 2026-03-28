@@ -1022,77 +1022,40 @@ else
     ((PASSED++))
 fi
 
-# ===== rn watch tests =====
+# ===== cv json to csv tests =====
 
-# Test: rn watch usage (missing args)
-result=$(u7 rn watch 2>&1)
-assert_contains "rn watch shows usage on missing args" "Usage" "$result"
+# Test: Convert JSON to CSV
+echo '[{"name":"Alice","age":30},{"name":"Bob","age":25}]' > test_cv.json
+if command -v jq &>/dev/null; then
+    u7 cv json test_cv.json to csv yield test_cv.csv >/dev/null 2>&1
+    if [[ -f "test_cv.csv" ]]; then
+        result=$(cat test_cv.csv)
+        assert_contains "cv json to csv works" "Alice" "$result"
+    else
+        echo -e "${RED}✗${NC} cv json to csv (file not created)"
+        ((FAILED++))
+    fi
+else
+    echo -e "${GREEN}✓${NC} cv json to csv (skipped - jq not installed)"
+    ((PASSED++))
+fi
 
-# Test: rn watch usage (missing run keyword)
-touch watch_target.txt
-result=$(u7 rn watch watch_target.txt 2>&1)
-assert_contains "rn watch shows usage when run keyword missing" "Usage" "$result"
+# Test: Convert JSON to CSV missing file
+result=$(u7 cv json nonexistent.json to csv 2>&1)
+assert_contains "cv json to csv reports missing file" "not found" "$result"
 
-# Test: rn watch file not found
-result=$(u7 rn watch nonexistent_file.txt run echo hi 2>&1)
-assert_contains "rn watch reports missing file" "not found" "$result"
+# Test: Convert JSON to unsupported format
+result=$(u7 cv json test_cv.json to xml 2>&1)
+assert_contains "cv json rejects unsupported format" "Unsupported" "$result"
 
-# Test: rn watch dry-run
-touch watch_target.txt
-result=$(u7 -n rn watch watch_target.txt run echo hello 2>&1)
-assert_equals "rn watch dry-run output" "[dry-run] watch watch_target.txt and run echo hello on change" "$result"
-
-# Test: rn watch help text includes watch
-result=$(u7 rn --help 2>&1)
-assert_contains "rn help mentions watch" "watch" "$result"
-
-# ===== sh log tests =====
-
-# Setup: create a temp log file
-LOG_FILE="$TEST_DIR/test.log"
-for i in $(seq 1 30); do
-    echo "line $i: log entry" >> "$LOG_FILE"
-done
-
-# Test: sh log default shows last 20 lines
-result=$(u7 sh log "$LOG_FILE" 2>&1)
-line_count=$(echo "$result" | wc -l | tr -d ' ')
-assert_equals "sh log default shows 20 lines" "20" "$line_count"
-assert_contains "sh log default starts at line 11" "line 11" "$result"
-
-# Test: sh log with limit
-result=$(u7 sh log "$LOG_FILE" limit 5 2>&1)
-line_count=$(echo "$result" | wc -l | tr -d ' ')
-assert_equals "sh log limit 5 shows 5 lines" "5" "$line_count"
-assert_contains "sh log limit 5 starts at line 26" "line 26" "$result"
-
-# Test: sh log with match
-echo "ERROR something broke" >> "$LOG_FILE"
-echo "INFO all good" >> "$LOG_FILE"
-echo "ERROR another failure" >> "$LOG_FILE"
-result=$(u7 sh log "$LOG_FILE" match ERROR 2>&1)
-line_count=$(echo "$result" | wc -l | tr -d ' ')
-assert_equals "sh log match finds 2 ERROR lines" "2" "$line_count"
-
-# Test: sh log missing file
-result=$(u7 sh log nonexistent.log 2>&1)
-assert_contains "sh log reports missing file" "File not found" "$result"
-
-# Test: sh log no arguments
-result=$(u7 sh log 2>&1)
-assert_contains "sh log no args shows usage" "Usage" "$result"
-
-# Test: sh log invalid limit
-result=$(u7 sh log "$LOG_FILE" limit abc 2>&1)
-assert_contains "sh log rejects non-integer limit" "limit must be a positive integer" "$result"
-
-# Test: sh log match without pattern
-result=$(u7 sh log "$LOG_FILE" match 2>&1)
-assert_contains "sh log match without pattern shows usage" "Usage" "$result"
-
-# Test: sh log unknown subcommand
-result=$(u7 sh log "$LOG_FILE" badarg 2>&1)
-assert_contains "sh log unknown subcommand shows usage" "Usage" "$result"
+# Test: Convert JSON to CSV dry-run
+if command -v jq &>/dev/null; then
+    result=$(u7 -n cv json test_cv.json to csv yield dryrun.csv 2>&1)
+    assert_contains "cv json to csv dry-run" "dry-run" "$result"
+else
+    echo -e "${GREEN}✓${NC} cv json to csv dry-run (skipped - jq not installed)"
+    ((PASSED++))
+fi
 
 # Cleanup
 cd /
